@@ -1,0 +1,512 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FindTenders — لوحة الإدارة</title>
+<meta name="theme-color" content="#0F1118">
+<link rel="manifest" href="admin-manifest.json">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700;900&family=Readex+Pro:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --deep-space:#0F1118; --dark-navy:#1C1C2E; --slate:#2A2A42; --muted:#64748B;
+    --teal:#2DD4BF; --teal-dark:#0D9488; --red:#F87171; --red-dark:#DC2626;
+    --gold:#F5C842; --gold-dark:#D4A017; --success:#16A34A; --text:#F1F2F6;
+  }
+  *{box-sizing:border-box;}
+  body{margin:0;background:var(--deep-space);color:var(--text);font-family:'Readex Pro',sans-serif;min-height:100vh;}
+  header{background:var(--dark-navy);border-bottom:1px solid var(--slate);padding:16px 24px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:10;flex-wrap:wrap;gap:12px;}
+  .logo{display:flex;align-items:center;gap:10px;}
+  .logo-icon{width:36px;height:36px;border-radius:10px;background:linear-gradient(135deg,var(--teal),var(--teal-dark));display:flex;align-items:center;justify-content:center;font-size:18px;}
+  .logo-text{font-family:'Space Grotesk',sans-serif;font-weight:900;font-size:20px;letter-spacing:-.3px;}
+  .logo-text span{color:var(--teal);}
+  .logo-sub{font-size:9px;color:var(--muted);letter-spacing:1.5px;font-family:'Space Grotesk',sans-serif;font-weight:500;}
+  .admin-tag{background:rgba(248,113,113,.15);color:var(--red);font-size:10px;font-weight:700;padding:4px 10px;border-radius:6px;font-family:'Space Grotesk';}
+  nav{display:flex;gap:6px;background:var(--slate);border-radius:10px;padding:4px;flex-wrap:wrap;}
+  nav button{background:none;border:none;color:var(--muted);font-family:'Readex Pro';font-size:13px;font-weight:600;padding:8px 16px;border-radius:8px;cursor:pointer;transition:.15s;}
+  nav button.active{background:var(--teal-dark);color:#fff;}
+  main{max-width:1120px;margin:0 auto;padding:28px 20px 80px;}
+  .section-note{background:var(--slate);border-radius:10px;padding:10px 16px;font-size:12px;color:var(--muted);margin-bottom:18px;}
+
+  .stats-row{display:flex;gap:12px;margin-bottom:22px;flex-wrap:wrap;}
+  .stat-card{background:var(--dark-navy);border:1px solid var(--slate);border-radius:12px;padding:14px 18px;flex:1;min-width:130px;}
+  .stat-card .num{font-family:'Space Grotesk';font-weight:700;font-size:24px;color:var(--teal);}
+  .stat-card .label{font-size:12px;color:var(--muted);margin-top:2px;}
+
+  .admin-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;flex-wrap:wrap;gap:10px;}
+  .admin-header h2{margin:0;font-size:19px;}
+  .admin-header p{margin:2px 0 0;color:var(--muted);font-size:13px;}
+  .plan-pill{display:flex;align-items:center;gap:6px;background:var(--slate);border-radius:10px;padding:9px 14px;font-size:12px;color:var(--muted);}
+  .plan-pill b{color:var(--gold);}
+
+  table{width:100%;border-collapse:collapse;background:var(--dark-navy);border:1px solid var(--slate);border-radius:14px;overflow:hidden;}
+  thead th{text-align:right;padding:12px 16px;font-size:12px;color:var(--muted);font-weight:600;border-bottom:1px solid var(--slate);}
+  tbody td{padding:14px 16px;font-size:13px;border-bottom:1px solid var(--slate);vertical-align:middle;}
+  tbody tr:last-child td{border-bottom:none;}
+  tbody tr:hover{background:rgba(255,255,255,.02);}
+  .status-badge{padding:4px 10px;border-radius:7px;font-size:11px;font-weight:600;white-space:nowrap;}
+  .status-pending{background:rgba(217,119,6,.18);color:#F5A857;}
+  .status-active{background:rgba(22,163,74,.18);color:#4ADE80;}
+  .status-rejected{background:rgba(220,38,38,.18);color:var(--red);}
+  .status-suspended{background:rgba(100,116,139,.25);color:var(--muted);}
+  .status-error{background:rgba(220,38,38,.18);color:var(--red);}
+  .status-paused{background:rgba(217,119,6,.18);color:#F5A857;}
+  .receipt-link{color:var(--teal);text-decoration:underline;cursor:pointer;font-size:12px;background:none;border:none;font-family:'Readex Pro';padding:0;}
+  .row-actions{display:flex;gap:6px;flex-wrap:wrap;}
+  .row-actions button{padding:6px 12px;font-size:12px;border-radius:7px;}
+  .pkg-select{background:var(--slate);border:1px solid var(--muted);color:var(--text);padding:6px 10px;border-radius:7px;font-family:'Readex Pro';font-size:12px;cursor:pointer;}
+  .btn{border:none;border-radius:10px;padding:11px 20px;font-family:'Readex Pro';font-weight:600;font-size:13px;cursor:pointer;transition:.15s;}
+  .btn-teal{background:var(--teal-dark);color:#fff;} .btn-teal:hover{background:var(--teal);}
+  .btn-ghost{background:var(--slate);color:var(--text);} .btn-ghost:hover{background:#37374f;}
+  .btn-red{background:var(--red-dark);color:#fff;} .btn-red:hover{background:var(--red);}
+  .btn-gold{background:linear-gradient(135deg,var(--gold),var(--gold-dark));color:#1C1C2E;}
+  .btn:disabled{opacity:.5;cursor:not-allowed;}
+  .btn-sm{padding:7px 14px;font-size:12px;}
+
+  .switch{position:relative;width:40px;height:22px;flex-shrink:0;display:inline-block;}
+  .switch input{opacity:0;width:0;height:0;}
+  .slider{position:absolute;cursor:pointer;inset:0;background:var(--slate);border-radius:24px;transition:.2s;}
+  .slider::before{content:'';position:absolute;height:16px;width:16px;right:3px;bottom:3px;background:#fff;border-radius:50%;transition:.2s;}
+  input:checked + .slider{background:var(--teal-dark);}
+  input:checked + .slider::before{transform:translateX(-18px);}
+
+  .user-cell{display:flex;flex-direction:column;}
+  .user-cell b{font-size:13px;}
+  .user-cell span{color:var(--muted);font-size:11px;}
+
+  .site-name{display:flex;align-items:center;gap:8px;font-weight:600;}
+  .site-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
+  .dot-active{background:var(--success);box-shadow:0 0 0 3px rgba(22,163,74,.2);}
+  .dot-error{background:var(--red);box-shadow:0 0 0 3px rgba(220,38,38,.2);}
+  .dot-paused{background:#F5A857;box-shadow:0 0 0 3px rgba(217,119,6,.2);}
+  .dot-off{background:var(--muted);}
+
+  .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.6);display:none;align-items:center;justify-content:center;z-index:100;padding:20px;}
+  .modal-overlay.show{display:flex;}
+  .modal{background:var(--dark-navy);border:1px solid var(--slate);border-radius:14px;padding:24px;max-width:380px;width:100%;}
+  .modal h3{margin:0 0 8px;font-size:16px;}
+  .modal p{color:var(--muted);font-size:13px;margin:0 0 20px;line-height:1.6;}
+  .modal-actions{display:flex;gap:8px;justify-content:flex-start;}
+
+  .toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--dark-navy);border:1px solid var(--success);color:#fff;padding:12px 22px;border-radius:10px;font-size:13px;opacity:0;transition:.25s;pointer-events:none;display:flex;align-items:center;gap:8px;z-index:50;}
+  .toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+
+  @media(max-width:700px){
+    table{font-size:12px;}
+    thead{display:none;}
+    tbody tr{display:block;border-bottom:1px solid var(--slate);padding:10px 0;}
+    tbody td{display:flex;justify-content:space-between;align-items:center;border:none;padding:6px 16px;gap:10px;}
+    tbody td::before{content:attr(data-label);color:var(--muted);font-size:11px;flex-shrink:0;}
+  }
+</style>
+</head>
+<body>
+
+<!-- ================= ADMIN LOGIN GATE ================= -->
+<div class="modal-overlay show" id="adminGate" style="background:var(--deep-space);">
+  <div class="modal" style="max-width:380px;">
+    <div style="text-align:center;margin-bottom:20px;">
+      <div class="logo-icon" style="margin:0 auto 12px;">🔍</div>
+      <div class="logo-text">find<span>TENDERS</span></div>
+      <div style="font-size:11px;color:var(--red);font-weight:700;margin-top:6px;">دخول مخصص للإدارة فقط</div>
+    </div>
+    <div class="field" style="margin-bottom:14px;"><label style="font-size:12px;color:var(--muted);">البريد الإلكتروني</label>
+      <input type="email" id="adminEmail" placeholder="admin@findtenders.net" style="width:100%;background:var(--deep-space);border:1px solid var(--slate);color:var(--text);padding:10px 12px;border-radius:9px;font-family:'Readex Pro';font-size:13px;margin-top:4px;"></div>
+    <div class="field" id="adminPasswordField" style="margin-bottom:14px;"><label style="font-size:12px;color:var(--muted);">كلمة المرور</label>
+      <input type="password" id="adminPassword" placeholder="••••••••" style="width:100%;background:var(--deep-space);border:1px solid var(--slate);color:var(--text);padding:10px 12px;border-radius:9px;font-family:'Readex Pro';font-size:13px;margin-top:4px;"></div>
+    <div class="field" id="adminOtpField" style="display:none;margin-bottom:14px;"><label style="font-size:12px;color:var(--muted);">رمز التحقق (OTP)</label>
+      <input type="text" id="adminOtp" placeholder="مثال: 482913" maxlength="6" style="width:100%;background:var(--deep-space);border:1px solid var(--slate);color:var(--text);padding:10px 12px;border-radius:9px;font-family:'Readex Pro';font-size:13px;margin-top:4px;letter-spacing:3px;text-align:center;">
+      <div style="font-size:11px;color:var(--muted);margin-top:6px;">أُرسل رمز إلى بريدك (معاينة: 000000)</div></div>
+    <button class="btn btn-teal btn-block" id="adminLoginBtn" onclick="adminLoginStep()">تسجيل الدخول</button>
+    <div style="font-size:11px;color:var(--muted);text-align:center;margin-top:14px;">حسابات الإدارة تُنشأ يدويًا فقط — لا يوجد تسجيل عام</div>
+  </div>
+</div>
+
+<div id="adminApp" style="display:none;">
+<header>
+  <div class="logo">
+    <div class="logo-icon">🔍</div>
+    <div><div class="logo-text">find<span>TENDERS</span></div><div class="logo-sub">AI-POWERED · YEMEN</div></div>
+  </div>
+  <span class="admin-tag">لوحة الإدارة</span>
+  <nav>
+    <button class="active" onclick="switchTab('subs', this)">💳 الاشتراكات</button>
+    <button onclick="switchTab('users', this)">👥 المستخدمون</button>
+    <button onclick="switchTab('sites', this)">🌐 حالة المصادر</button>
+    <button onclick="switchTab('tenders', this)">📋 المناقصات</button>
+  </nav>
+  <button class="btn btn-ghost btn-sm" onclick="adminLogout()">🚪 خروج</button>
+</header>
+
+<main>
+<div class="section-note">📋 معاينة تفاعلية للوحة الإدارة — البيانات تجريبية.</div>
+
+<div class="stats-row">
+  <div class="stat-card"><div class="num" id="statPending">2</div><div class="label">طلبات معلّقة</div></div>
+  <div class="stat-card"><div class="num" id="statActive">1</div><div class="label">اشتراكات نشطة</div></div>
+  <div class="stat-card"><div class="num">42</div><div class="label">إجمالي المستخدمين</div></div>
+  <div class="stat-card"><div class="num" id="statSitesUp">18/20</div><div class="label">مصادر تعمل بنجاح</div></div>
+</div>
+
+<!-- ================= SUBSCRIPTIONS TAB ================= -->
+<div id="tab-subs">
+  <div class="admin-header">
+    <div><h2>طلبات الاشتراك</h2><p>راجع إيصال التحويل، فعّل أو ألغِ الاشتراك يدويًا</p></div>
+  </div>
+  <table>
+    <thead><tr><th>المستخدم</th><th>الخطة</th><th>طريقة الدفع</th><th>الإيصال</th><th>الحالة</th><th>إجراء</th></tr></thead>
+    <tbody id="subsBody"></tbody>
+  </table>
+</div>
+
+<!-- ================= USERS TAB ================= -->
+<div id="tab-users" style="display:none;">
+  <div class="admin-header">
+    <div><h2>المستخدمون</h2><p>فعّل أو عطّل أي حساب، واطّلع على خطته وآخر نشاط له</p></div>
+  </div>
+  <table>
+    <thead><tr><th>المستخدم</th><th>الخطة</th><th>آخر دخول</th><th>الحالة</th><th>إجراء</th></tr></thead>
+    <tbody id="usersBody"></tbody>
+  </table>
+</div>
+
+<!-- ================= SITES TAB ================= -->
+<div id="tab-sites" style="display:none;">
+  <div class="admin-header">
+    <div><h2>حالة المصادر (الكشط)</h2><p>فعّل أو عطّل مصدرًا، أو راقب حالته الأخيرة</p></div>
+  </div>
+  <table>
+    <thead><tr><th>الموقع</th><th>الفئة</th><th>معدّل الفحص</th><th>آخر فحص</th><th>آخر نتيجة</th><th>مفعّل</th><th>إجراء</th></tr></thead>
+    <tbody id="sitesBody"></tbody>
+  </table>
+</div>
+
+<!-- ================= TENDERS TAB (manual entry) ================= -->
+<div id="tab-tenders" style="display:none;">
+  <div class="admin-header">
+    <div><h2>إدارة المناقصات</h2><p>أضف مناقصة يدويًا، أو عدّل/احذف مناقصة مضافة سابقًا</p></div>
+    <button class="btn btn-gold" onclick="openTenderForm()">+ إضافة مناقصة</button>
+  </div>
+  <table>
+    <thead><tr><th>عنوان المناقصة</th><th>الجهة</th><th>القطاع</th><th>الموعد النهائي</th><th>المصدر</th><th>إجراء</th></tr></thead>
+    <tbody id="tendersBody"></tbody>
+  </table>
+</div>
+
+</main>
+
+<!-- Confirm modal -->
+<div class="modal-overlay" id="modalOverlay">
+  <div class="modal">
+    <h3 id="modalTitle">تأكيد الإجراء</h3>
+    <p id="modalText"></p>
+    <div class="modal-actions">
+      <button class="btn btn-red" id="modalConfirmBtn">تأكيد</button>
+      <button class="btn btn-ghost" onclick="closeModal()">إلغاء</button>
+    </div>
+  </div>
+</div>
+
+</div><!-- /adminApp -->
+
+<div class="toast" id="toast">✅ <span id="toastMsg"></span></div>
+
+<script>
+// ================= STATE =================
+let subscriptions = [
+  {name:"أحمد الشرعبي", email:"a.sharabi@example.com", plan:"شهري — $20", method:"فلوسك", receipt:"receipt_0091.jpg", status:"pending", chosenPkg:"p20"},
+  {name:"شركة نماء للمقاولات", email:"info@namaa.co", plan:"سنوي — $99×12", method:"جوالي", receipt:"receipt_0092.jpg", status:"pending", chosenPkg:"p99"},
+  {name:"سارة قاسم", email:"sara.q@example.com", plan:"شهري — $50", method:"Stripe", receipt:"—", status:"active", chosenPkg:"p50"},
+  {name:"مؤسسة الرازحي التجارية", email:"razhi.trade@example.com", plan:"شهري — $20", method:"فلوسك", receipt:"receipt_0088.jpg", status:"rejected", chosenPkg:"p20"},
+];
+
+let users = [
+  {name:"سارة قاسم", email:"sara.q@example.com", plan:"مدفوعة", lastLogin:"اليوم 09:12", status:"active"},
+  {name:"أحمد الشرعبي", email:"a.sharabi@example.com", plan:"مجانية", lastLogin:"أمس 18:40", status:"active"},
+  {name:"شركة نماء للمقاولات", email:"info@namaa.co", plan:"مجانية", lastLogin:"قبل 3 أيام", status:"active"},
+  {name:"عبدالله الحضرمي", email:"a.hadrami@example.com", plan:"مدفوعة", lastLogin:"قبل أسبوع", status:"suspended"},
+];
+
+let manualTenders = [
+  {id:1, title:"توريد وتركيب أنظمة طاقة شمسية لـ 13 مستودع لقاحات", org:"UNOPS", sector:"الطاقة", deadline:"15/07/2026", link:"https://procurement-notices.undp.org/example", description:"دعوة لتقديم عروض توريد وتركيب أنظمة طاقة شمسية متكاملة لـ 13 مستودعًا لحفظ اللقاحات في محافظات متعددة.", source:"يدوي"},
+  {id:2, title:"إنشاء شبكة مياه وخزانات علوية — منطقة النهضين", org:"UNICEF", sector:"المياه", deadline:"20/07/2026", link:"https://www.unicef.org/supply/example", description:"إنشاء شبكة مياه رئيسية وخزانات علوية لخدمة منطقة النهضين في صنعاء.", source:"يدوي"},
+];
+const tenderSectors = ["الطاقة","المياه","صحة","إنشاءات","غذاء ولوجستيات","اتصالات","تعليم","نقل","زراعة","إسكان","طاقة متجددة","بيئة"];
+let editingTenderId = null;
+let sites = [
+  {name:"UNDP Quantum", category:"أممي", frequency:"يوميًا", lastCheck:"قبل 40 دقيقة", result:"نجاح — 4 مناقصات جديدة", state:"active", enabled:true},
+  {name:"ReliefWeb API", category:"أممي", frequency:"يوميًا", lastCheck:"قبل ساعة", result:"نجاح — 2 مناقصة جديدة", state:"active", enabled:true},
+  {name:"SFD", category:"محلي", frequency:"كل 3 أيام", lastCheck:"قبل ساعتين", result:"نجاح — 1 مناقصة جديدة", state:"active", enabled:true},
+  {name:"YemenHR", category:"محلي", frequency:"كل 3–4 أيام", lastCheck:"قبل 3 ساعات", result:"تحذير — بنية الصفحة تغيّرت", state:"paused", enabled:true},
+  {name:"UNOPS", category:"أممي", frequency:"أسبوعيًا", lastCheck:"—", result:"لم يُفعَّل بعد", state:"off", enabled:false},
+  {name:"UNGM", category:"أممي", frequency:"—", lastCheck:"فشل قبل يومين", result:"خطأ — حماية بوتات (403)", state:"error", enabled:false},
+];
+
+// ================= TABS =================
+function switchTab(tab, btn){
+  document.querySelectorAll('nav button').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('tab-subs').style.display = tab==='subs' ? 'block' : 'none';
+  document.getElementById('tab-users').style.display = tab==='users' ? 'block' : 'none';
+  document.getElementById('tab-sites').style.display = tab==='sites' ? 'block' : 'none';
+  document.getElementById('tab-tenders').style.display = tab==='tenders' ? 'block' : 'none';
+}
+
+// ================= SUBSCRIPTIONS =================
+const subStatusMap = {pending:["معلّق","status-pending"], active:["نشط","status-active"], rejected:["مرفوض","status-rejected"]};
+const packageOptions = [
+  {key:"p20", label:"الأساسية — $20/شهر"},
+  {key:"p50", label:"الاحترافية — $50/شهر"},
+  {key:"p99", label:"الشاملة — $99/شهر"},
+];
+
+function renderSubs(){
+  const body = document.getElementById('subsBody');
+  document.getElementById('statPending').textContent = subscriptions.filter(s=>s.status==='pending').length;
+  document.getElementById('statActive').textContent = subscriptions.filter(s=>s.status==='active').length;
+
+  body.innerHTML = subscriptions.map((s,i)=>{
+    const [label, cls] = subStatusMap[s.status];
+    let actions = '';
+    if(s.status==='pending'){
+      actions = `<div class="row-actions">
+        <select class="pkg-select" id="pkgSelect-${i}">
+          ${packageOptions.map(p=>`<option value="${p.key}" ${s.chosenPkg===p.key?'selected':''}>${p.label}</option>`).join('')}
+        </select>
+        <button class="btn btn-teal" onclick="activateWithPackage(${i})">تفعيل</button>
+        <button class="btn btn-red" onclick="setSubStatus(${i},'rejected')">رفض</button>
+      </div>`;
+    } else if(s.status==='active'){
+      const pkgLabel = packageOptions.find(p=>p.key===s.chosenPkg)?.label || s.plan;
+      actions = `<div class="row-actions">
+        <span class="status-badge status-active" style="margin-left:4px;">${pkgLabel}</span>
+        <button class="btn btn-ghost" onclick="confirmAction('إلغاء تفعيل الاشتراك؟', 'سيعود ${s.name} إلى الخطة المجانية فورًا.', ()=>setSubStatus(${i},'pending'))">إلغاء التفعيل</button>
+      </div>`;
+    } else {
+      actions = `<div class="row-actions"><button class="btn btn-teal" onclick="setSubStatus(${i},'pending')">إعادة فتح الطلب</button></div>`;
+    }
+    return `<tr>
+      <td data-label="المستخدم"><div class="user-cell"><b>${s.name}</b><span>${s.email}</span></div></td>
+      <td data-label="الخطة">${s.plan}</td>
+      <td data-label="طريقة الدفع">${s.method}</td>
+      <td data-label="الإيصال">${s.receipt!=='—' ? `<button class="receipt-link" onclick="showToast('عرض الإيصال (معاينة فقط)')">عرض الإيصال</button>` : '—'}</td>
+      <td data-label="الحالة"><span class="status-badge ${cls}">${label}</span></td>
+      <td data-label="إجراء">${actions}</td>
+    </tr>`;
+  }).join('');
+}
+function activateWithPackage(i){
+  const select = document.getElementById('pkgSelect-'+i);
+  subscriptions[i].chosenPkg = select.value;
+  setSubStatus(i, 'active');
+}
+function setSubStatus(i, status){
+  subscriptions[i].status = status;
+  renderSubs();
+  const pkgLabel = packageOptions.find(p=>p.key===subscriptions[i].chosenPkg)?.label || '';
+  const msg = status==='active' ? `تم تفعيل اشتراك ${subscriptions[i].name} — ${pkgLabel} (سيصله بريد التفعيل تلقائيًا حسب الباقة)` : status==='rejected' ? `تم رفض طلب ${subscriptions[i].name}` : `تم إلغاء تفعيل اشتراك ${subscriptions[i].name}`;
+  showToast(msg);
+}
+
+// ================= USERS =================
+const userStatusMap = {active:["نشط","status-active"], suspended:["معطّل","status-suspended"]};
+function renderUsers(){
+  const body = document.getElementById('usersBody');
+  body.innerHTML = users.map((u,i)=>{
+    const [label, cls] = userStatusMap[u.status];
+    const actionBtn = u.status==='active'
+      ? `<button class="btn btn-red" onclick="confirmAction('تعطيل هذا الحساب؟', 'لن يتمكن ${u.name} من تسجيل الدخول حتى تُعيد تفعيله.', ()=>setUserStatus(${i},'suspended'))">تعطيل</button>`
+      : `<button class="btn btn-teal" onclick="setUserStatus(${i},'active')">تفعيل</button>`;
+    return `<tr>
+      <td data-label="المستخدم"><div class="user-cell"><b>${u.name}</b><span>${u.email}</span></div></td>
+      <td data-label="الخطة">${u.plan}</td>
+      <td data-label="آخر دخول">${u.lastLogin}</td>
+      <td data-label="الحالة"><span class="status-badge ${cls}">${label}</span></td>
+      <td data-label="إجراء"><div class="row-actions">${actionBtn}</div></td>
+    </tr>`;
+  }).join('');
+}
+function setUserStatus(i, status){
+  users[i].status = status;
+  renderUsers();
+  showToast(status==='active' ? `تم تفعيل حساب ${users[i].name}` : `تم تعطيل حساب ${users[i].name}`);
+}
+
+// ================= SITES =================
+const siteStateMap = {active:["dot-active"], error:["dot-error"], paused:["dot-paused"], off:["dot-off"]};
+function renderSites(){
+  const body = document.getElementById('sitesBody');
+  const up = sites.filter(s=>s.enabled && s.state!=='error').length;
+  document.getElementById('statSitesUp').textContent = `${up}/${sites.length}`;
+
+  body.innerHTML = sites.map((s,i)=>{
+    const dotCls = siteStateMap[s.state][0];
+    const resultBadgeCls = s.state==='error' ? 'status-error' : s.state==='paused' ? 'status-paused' : s.state==='active' ? 'status-active' : 'status-suspended';
+    return `<tr>
+      <td data-label="الموقع"><div class="site-name"><span class="site-dot ${dotCls}"></span>${s.name}</div></td>
+      <td data-label="الفئة">${s.category}</td>
+      <td data-label="معدّل الفحص">${s.frequency}</td>
+      <td data-label="آخر فحص">${s.lastCheck}</td>
+      <td data-label="آخر نتيجة"><span class="status-badge ${resultBadgeCls}">${s.result}</span></td>
+      <td data-label="مفعّل"><label class="switch"><input type="checkbox" ${s.enabled?'checked':''} onchange="toggleSite(${i})"><span class="slider"></span></label></td>
+      <td data-label="إجراء"><div class="row-actions"><button class="btn btn-ghost" onclick="showToast('تشغيل فحص فوري لـ ${s.name}...')">فحص الآن</button></div></td>
+    </tr>`;
+  }).join('');
+}
+function toggleSite(i){
+  sites[i].enabled = !sites[i].enabled;
+  sites[i].state = sites[i].enabled ? 'active' : 'off';
+  sites[i].result = sites[i].enabled ? 'بانتظار أول فحص' : 'موقف يدويًا';
+  sites[i].lastCheck = sites[i].enabled ? 'الآن' : '—';
+  renderSites();
+  showToast(sites[i].enabled ? `تم تفعيل مصدر ${sites[i].name}` : `تم تعطيل مصدر ${sites[i].name}`);
+}
+
+// ================= MANUAL TENDERS =================
+function renderTendersTab(){
+  const body = document.getElementById('tendersBody');
+  if(manualTenders.length===0){
+    body.innerHTML = `<tr><td colspan="6" style="text-align:center;color:var(--muted);padding:24px;">لا توجد مناقصات مضافة يدويًا بعد</td></tr>`;
+    return;
+  }
+  body.innerHTML = manualTenders.map(t=>`<tr>
+    <td data-label="العنوان"><b>${t.title}</b></td>
+    <td data-label="الجهة">${t.org||'—'}</td>
+    <td data-label="القطاع">${t.sector}</td>
+    <td data-label="الموعد النهائي">${t.deadline||'—'}</td>
+    <td data-label="المصدر">${t.link ? `<a href="${t.link}" target="_blank" rel="noopener" class="receipt-link" style="text-decoration:underline;">فتح الرابط</a>` : '—'}</td>
+    <td data-label="إجراء"><div class="row-actions">
+      <button class="btn btn-ghost" onclick="openTenderForm(${t.id})">تعديل</button>
+      <button class="btn btn-red" onclick="confirmAction('حذف هذه المناقصة؟', 'لن تظهر بعد الآن لدى المستخدمين.', ()=>deleteTender(${t.id}))">حذف</button>
+    </div></td>
+  </tr>`).join('');
+}
+
+function openTenderForm(id){
+  editingTenderId = id || null;
+  const t = id ? manualTenders.find(x=>x.id===id) : null;
+  const sectorOptions = tenderSectors.map(s=>`<option value="${s}" ${t&&t.sector===s?'selected':''}>${s}</option>`).join('');
+  document.getElementById('modalTitle').textContent = id ? 'تعديل مناقصة' : 'إضافة مناقصة جديدة';
+  document.getElementById('modalText').innerHTML = `
+    <div style="text-align:right;display:flex;flex-direction:column;gap:10px;">
+      <div><label style="font-size:12px;color:var(--muted);">عنوان المناقصة</label>
+        <input id="f-title" type="text" value="${t?t.title:''}" placeholder="مثال: توريد معدات طبية..." style="width:100%;background:var(--dark-navy);border:1px solid var(--slate);color:var(--text);padding:9px 12px;border-radius:8px;font-family:'Readex Pro';font-size:13px;margin-top:4px;"></div>
+      <div><label style="font-size:12px;color:var(--muted);">الجهة (اختياري)</label>
+        <input id="f-org" type="text" value="${t?t.org||'':''}" placeholder="مثال: UNDP" style="width:100%;background:var(--dark-navy);border:1px solid var(--slate);color:var(--text);padding:9px 12px;border-radius:8px;font-family:'Readex Pro';font-size:13px;margin-top:4px;"></div>
+      <div><label style="font-size:12px;color:var(--muted);">القطاع</label>
+        <select id="f-sector" style="width:100%;background:var(--dark-navy);border:1px solid var(--slate);color:var(--text);padding:9px 12px;border-radius:8px;font-family:'Readex Pro';font-size:13px;margin-top:4px;">${sectorOptions}</select></div>
+      <div><label style="font-size:12px;color:var(--muted);">الموعد النهائي</label>
+        <input id="f-deadline" type="text" value="${t?t.deadline||'':''}" placeholder="مثال: 30/08/2026" style="width:100%;background:var(--dark-navy);border:1px solid var(--slate);color:var(--text);padding:9px 12px;border-radius:8px;font-family:'Readex Pro';font-size:13px;margin-top:4px;"></div>
+      <div><label style="font-size:12px;color:var(--muted);">الرابط (يوجّه المستخدم للمناقصة الأصلية)</label>
+        <input id="f-link" type="text" value="${t?t.link||'':''}" placeholder="https://..." style="width:100%;background:var(--dark-navy);border:1px solid var(--slate);color:var(--text);padding:9px 12px;border-radius:8px;font-family:'Readex Pro';font-size:13px;margin-top:4px;"></div>
+      <div><label style="font-size:12px;color:var(--muted);">الوصف</label>
+        <textarea id="f-description" rows="3" placeholder="وصف مختصر لتفاصيل المناقصة..." style="width:100%;background:var(--dark-navy);border:1px solid var(--slate);color:var(--text);padding:9px 12px;border-radius:8px;font-family:'Readex Pro';font-size:13px;margin-top:4px;resize:vertical;">${t?t.description||'':''}</textarea></div>
+    </div>`;
+  document.getElementById('modalConfirmBtn').textContent = id ? 'حفظ التعديل' : 'إضافة المناقصة';
+  document.getElementById('modalConfirmBtn').className = 'btn btn-teal';
+  pendingConfirmFn = saveTenderForm;
+  document.getElementById('modalOverlay').classList.add('show');
+}
+
+function saveTenderForm(){
+  const title = document.getElementById('f-title').value.trim();
+  if(!title){ showToast('عنوان المناقصة مطلوب'); return; }
+  const data = {
+    title,
+    org: document.getElementById('f-org').value.trim(),
+    sector: document.getElementById('f-sector').value,
+    deadline: document.getElementById('f-deadline').value.trim(),
+    link: document.getElementById('f-link').value.trim(),
+    description: document.getElementById('f-description').value.trim(),
+    source: 'يدوي',
+  };
+  if(editingTenderId){
+    const idx = manualTenders.findIndex(x=>x.id===editingTenderId);
+    manualTenders[idx] = {...manualTenders[idx], ...data};
+    showToast('تم تعديل المناقصة');
+  } else {
+    manualTenders.push({id: Date.now(), ...data});
+    showToast('تمت إضافة المناقصة');
+  }
+  document.getElementById('modalConfirmBtn').className = 'btn btn-red';
+  renderTendersTab();
+}
+
+function deleteTender(id){
+  manualTenders = manualTenders.filter(t=>t.id!==id);
+  renderTendersTab();
+  showToast('تم حذف المناقصة');
+}
+
+// ================= ADMIN LOGIN GATE (password + OTP demo) =================
+let adminLoginStage = 'password';
+function adminLoginStep(){
+  if(adminLoginStage==='password'){
+    const email = document.getElementById('adminEmail').value.trim();
+    const pw = document.getElementById('adminPassword').value;
+    if(!email || !pw){ showToast('أدخل البريد وكلمة المرور'); return; }
+    // Step 2: switch to OTP entry (simulates a code emailed to the admin)
+    document.getElementById('adminPasswordField').style.display = 'none';
+    document.getElementById('adminOtpField').style.display = 'block';
+    document.getElementById('adminLoginBtn').textContent = 'تأكيد الرمز';
+    adminLoginStage = 'otp';
+    showToast('تم إرسال رمز تحقق إلى بريدك');
+  } else {
+    const otp = document.getElementById('adminOtp').value.trim();
+    if(otp.length!==6){ showToast('أدخل رمز التحقق المكوّن من 6 أرقام'); return; }
+    document.getElementById('adminGate').classList.remove('show');
+    document.getElementById('adminApp').style.display = 'block';
+    showToast('تم تسجيل الدخول إلى لوحة الإدارة');
+  }
+}
+function adminLogout(){
+  document.getElementById('adminApp').style.display = 'none';
+  document.getElementById('adminGate').classList.add('show');
+  document.getElementById('adminPasswordField').style.display = 'block';
+  document.getElementById('adminOtpField').style.display = 'none';
+  document.getElementById('adminLoginBtn').textContent = 'تسجيل الدخول';
+  document.getElementById('adminPassword').value = '';
+  document.getElementById('adminOtp').value = '';
+  adminLoginStage = 'password';
+}
+if('serviceWorker' in navigator){
+  window.addEventListener('load', ()=>{ navigator.serviceWorker.register('admin-sw.js').catch(()=>{}); });
+}
+
+// ================= CONFIRM MODAL =================
+let pendingConfirmFn = null;
+function confirmAction(title, text, fn){
+  document.getElementById('modalTitle').textContent = title;
+  document.getElementById('modalText').textContent = text;
+  document.getElementById('modalConfirmBtn').textContent = 'تأكيد';
+  document.getElementById('modalConfirmBtn').className = 'btn btn-red';
+  pendingConfirmFn = fn;
+  document.getElementById('modalOverlay').classList.add('show');
+}
+function closeModal(){
+  document.getElementById('modalOverlay').classList.remove('show');
+  pendingConfirmFn = null;
+}
+document.getElementById('modalConfirmBtn').addEventListener('click', ()=>{
+  if(pendingConfirmFn) pendingConfirmFn();
+  closeModal();
+});
+
+// ================= TOAST =================
+let toastTimer;
+function showToast(msg){
+  const toast = document.getElementById('toast');
+  document.getElementById('toastMsg').textContent = msg;
+  toast.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(()=>toast.classList.remove('show'), 2600);
+}
+
+renderSubs();
+renderUsers();
+renderSites();
+renderTendersTab();
+</script>
+</body>
+</html>

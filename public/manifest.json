@@ -1,0 +1,17 @@
+{
+  "name": "FindTenders — رصد المناقصات في اليمن",
+  "short_name": "FindTenders",
+  "description": "منصة يمنية لرصد مناقصات ومشاريع اليمن تلقائيًا من 20 مصدرًا.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "background_color": "#0F1118",
+  "theme_color": "#0F1118",
+  "dir": "rtl",
+  "lang": "ar",
+  "icons": [
+    { "src": "icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any maskable" },
+    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" }
+  ]
+}

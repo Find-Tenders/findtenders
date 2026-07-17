@@ -1,0 +1,67 @@
+import { createHash } from 'node:crypto';
+
+// Same fingerprint recipe every scraper must use, so the same tender
+// appearing on two different sites (or re-scraped tomorrow) doesn't
+// create a duplicate row.
+export function makeFingerprint({ sourceUrl, title, org, deadline }) {
+  const raw = [sourceUrl || '', title || '', org || '', deadline || '']
+    .join('|')
+    .toLowerCase()
+    .trim();
+  return createHash('sha256').update(raw).digest('hex');
+}
+
+export function stripHtml(html) {
+  if (!html) return '';
+  return html.replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim();
+}
+
+export function truncate(text, max = 320) {
+  if (!text) return '';
+  return text.length > max ? text.slice(0, max).trim() + '…' : text;
+}
+
+const MONTHS = {
+  jan: '01', feb: '02', mar: '03', apr: '04', may: '05', jun: '06',
+  jul: '07', aug: '08', sep: '09', oct: '10', nov: '11', dec: '12',
+};
+
+// Parses UNDP's "31-Jul-26" style dates into "2026-07-31". Returns null
+// if the text doesn't match (rather than throwing) since scrapers should
+// never crash the whole batch over one malformed date.
+export function parseDMonYY(text) {
+  if (!text) return null;
+  const match = text.trim().match(/^(\d{1,2})-([A-Za-z]{3})-(\d{2})/);
+  if (!match) return null;
+  const [, day, mon, yy] = match;
+  const month = MONTHS[mon.toLowerCase()];
+  if (!month) return null;
+  const year = Number(yy) < 70 ? `20${yy}` : `19${yy}`;
+  return `${year}-${month}-${day.padStart(2, '0')}`;
+}
+
+// Keys must match the `sectors.slug` values from the schema migration.
+const SECTOR_KEYWORDS = {
+  energy: ['solar', 'energy', 'power', 'electricity', 'generator'],
+  water: ['water', 'wash', 'sanitation', 'well drilling', 'borehole'],
+  health: ['health', 'medical', 'hospital', 'clinic', 'vaccine'],
+  construction: ['construction', 'building', 'infrastructure', 'rehabilitation'],
+  food_logistics: ['food', 'logistics', 'supply', 'nutrition', 'warehouse'],
+  telecom: ['telecom', 'communication', 'network', 'internet'],
+  education: ['education', 'school', 'learning'],
+  transport: ['transport', 'road', 'port', 'vehicle', 'fleet'],
+  agriculture: ['agriculture', 'farming', 'irrigation', 'livestock'],
+  housing: ['housing', 'shelter', 'settlement'],
+  renewable: ['renewable', 'wind energy'],
+  environment: ['environment', 'climate', 'waste management'],
+};
+
+// Best-effort guess only — admins can always correct it later via the
+// manual tender editor. No AI classification in this first pass.
+export function guessSector(text) {
+  const lower = (text || '').toLowerCase();
+  for (const [sector, keywords] of Object.entries(SECTOR_KEYWORDS)) {
+    if (keywords.some((kw) => lower.includes(kw))) return sector;
+  }
+  return null;
+}

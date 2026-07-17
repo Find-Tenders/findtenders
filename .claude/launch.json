@@ -1,0 +1,11 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "findtenders-static",
+      "runtimeExecutable": "powershell",
+      "runtimeArgs": ["-ExecutionPolicy", "Bypass", "-File", "scripts/dev-server.ps1", "-Root", "public", "-Port", "5500"],
+      "port": 5500
+    }
+  ]
+}

@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FindTenders — تطبيق المستخدم</title>
+<meta name="theme-color" content="#0F1118">
+<link rel="manifest" href="../manifest.json">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700;900&family=Readex+Pro:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --deep-space:#0F1118; --dark-navy:#1C1C2E; --slate:#2A2A42; --muted:#64748B;
+    --teal:#2DD4BF; --teal-dark:#0D9488; --gold:#F5C842; --text:#F1F2F6;
+  }
+  *{box-sizing:border-box;}
+  body{margin:0;background:var(--deep-space);color:var(--text);font-family:'Readex Pro',sans-serif;min-height:100vh;}
+  header{background:var(--dark-navy);border-bottom:1px solid var(--slate);padding:16px 24px;display:flex;align-items:center;justify-content:space-between;}
+  .logo{display:flex;align-items:center;gap:10px;}
+  .logo-icon{width:36px;height:36px;border-radius:10px;background:linear-gradient(135deg,var(--teal),var(--teal-dark));display:flex;align-items:center;justify-content:center;font-size:18px;}
+  .logo-text{font-family:'Space Grotesk',sans-serif;font-weight:900;font-size:20px;}
+  .logo-text span{color:var(--teal);}
+  .btn{border:none;border-radius:10px;padding:10px 18px;font-family:'Readex Pro';font-weight:600;font-size:13px;cursor:pointer;background:var(--slate);color:var(--text);}
+  .btn:hover{background:#37374f;}
+  main{max-width:600px;margin:0 auto;padding:40px 20px;}
+  .card{background:var(--dark-navy);border:1px solid var(--slate);border-radius:14px;padding:24px;}
+  .card h2{margin:0 0 4px;font-size:18px;}
+  .card p{color:var(--muted);font-size:13px;margin:4px 0;}
+  .row{display:flex;justify-content:space-between;padding:9px 0;border-bottom:1px solid var(--slate);font-size:13px;}
+  .row:last-child{border-bottom:none;}
+  .row .lbl{color:var(--muted);}
+  .note{background:var(--slate);border-radius:10px;padding:12px 16px;font-size:12px;color:var(--muted);margin-top:18px;}
+  .loading{text-align:center;color:var(--muted);padding:60px 20px;}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">
+    <div class="logo-icon">🔍</div>
+    <div class="logo-text">find<span>TENDERS</span></div>
+  </div>
+  <button class="btn" id="signOutBtn">🚪 تسجيل الخروج</button>
+</header>
+
+<main>
+  <div id="loading" class="loading">جارٍ التحميل...</div>
+  <div class="card" id="profileCard" style="display:none;">
+    <h2 id="welcomeName"></h2>
+    <p id="welcomeEmail"></p>
+    <div style="margin-top:16px;">
+      <div class="row"><span class="lbl">الباقة الحالية</span><span id="fPlan"></span></div>
+      <div class="row"><span class="lbl">القطاعات المفعّلة</span><span id="fSectors"></span></div>
+      <div class="row"><span class="lbl">عمليات البحث المستخدمة</span><span id="fSearches"></span></div>
+    </div>
+    <div class="note">هذه صفحة تأكيد مؤقتة تثبت أن تسجيل الدخول وقاعدة البيانات متصلان بشكل صحيح. التطبيق الكامل (البحث عن المناقصات، اختيار القطاعات، الترقية) قادم في الخطوة التالية.</div>
+  </div>
+</main>
+
+<script type="module">
+import { supabase } from '../assets/js/supabaseClient.js';
+import { requireSession, getMyProfile, signOut } from '../assets/js/auth.js';
+
+const session = await requireSession('../');
+if(session){
+  try{
+    const profile = await getMyProfile();
+    document.getElementById('welcomeName').textContent = 'مرحبًا، ' + (profile.full_name || session.user.email);
+    document.getElementById('welcomeEmail').textContent = session.user.email;
+    const planLabels = { free:'مجانية', basic:'الأساسية', professional:'الاحترافية', comprehensive:'الشاملة' };
+    document.getElementById('fPlan').textContent = planLabels[profile.plan] || profile.plan;
+    document.getElementById('fSectors').textContent = profile.selected_sectors.length ? profile.selected_sectors.join('، ') : 'لم تُختر بعد';
+    document.getElementById('fSearches').textContent = profile.searches_used;
+    document.getElementById('loading').style.display = 'none';
+    document.getElementById('profileCard').style.display = 'block';
+  } catch(err){
+    document.getElementById('loading').textContent = 'تعذّر تحميل الملف الشخصي: ' + err.message;
+  }
+}
+
+document.getElementById('signOutBtn').addEventListener('click', async () => {
+  await signOut();
+  window.location.href = '../';
+});
+
+if('serviceWorker' in navigator){
+  navigator.serviceWorker.register('../sw.js').catch(()=>{});
+}
+</script>
+</body>
+</html>
