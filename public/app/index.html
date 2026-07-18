@@ -900,6 +900,14 @@ function wireEvents() {
     if (w) selectWallet(w);
   });
   document.getElementById('walletContinueBtn').addEventListener('click', goToTransfer);
+  document.getElementById('copyAccountBtn').addEventListener('click', async () => {
+    try {
+      await navigator.clipboard.writeText(document.getElementById('transferAccountNumber').textContent);
+      showToast('تم نسخ رقم الحساب');
+    } catch {
+      showToast('تعذّر النسخ — انسخ الرقم يدويًا', true);
+    }
+  });
   document.getElementById('fileDrop').addEventListener('click', () => document.getElementById('receiptFile').click());
   document.getElementById('submitRequestBtn').addEventListener('click', submitUpgradeRequest);
   document.getElementById('openMailBtn').addEventListener('click', openMailClient);
