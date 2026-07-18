@@ -5,11 +5,12 @@
 import * as cheerio from 'cheerio';
 import { getOrCreateSource, markSourceResult, upsertTenders } from '../lib/upsertTenders.mjs';
 import { makeFingerprint, truncate, guessSector, parseDayMonComma } from '../lib/normalize.mjs';
+import { BROWSER_HEADERS } from '../lib/http.mjs';
 
 const URL = 'https://yemenhr.com/tenders';
 
 async function fetchNotices() {
-  const res = await fetch(URL);
+  const res = await fetch(URL, { headers: BROWSER_HEADERS });
   if (!res.ok) {
     throw new Error(`YemenHR site returned ${res.status}`);
   }

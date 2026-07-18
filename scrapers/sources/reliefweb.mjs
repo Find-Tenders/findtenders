@@ -5,7 +5,13 @@
 import { getOrCreateSource, markSourceResult, upsertTenders } from '../lib/upsertTenders.mjs';
 import { makeFingerprint, stripHtml, truncate, guessSector } from '../lib/normalize.mjs';
 
-const API_URL = 'https://api.reliefweb.int/v1/reports?appname=findtenders-yemen';
+// v1 is decommissioned; v2 requires a pre-approved appname (see
+// https://apidoc.reliefweb.int/parameters#appname) — request one and set
+// it here before this scraper will work. Until then it fails loudly via
+// markSourceResult, which is correct: the admin portal should show it as
+// broken rather than silently doing nothing.
+const APP_NAME = 'findtenders-yemen';
+const API_URL = `https://api.reliefweb.int/v2/reports?appname=${APP_NAME}`;
 
 const TENDER_QUERY =
   '(tender OR procurement OR "request for proposal" OR "expression of interest" OR "invitation to bid" OR RFP OR EOI)';

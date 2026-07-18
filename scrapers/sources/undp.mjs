@@ -4,11 +4,12 @@
 import * as cheerio from 'cheerio';
 import { getOrCreateSource, markSourceResult, upsertTenders } from '../lib/upsertTenders.mjs';
 import { makeFingerprint, truncate, guessSector, parseDMonYY } from '../lib/normalize.mjs';
+import { BROWSER_HEADERS } from '../lib/http.mjs';
 
 const BASE_URL = 'https://procurement-notices.undp.org/';
 
 async function fetchNotices() {
-  const res = await fetch(BASE_URL);
+  const res = await fetch(BASE_URL, { headers: BROWSER_HEADERS });
   if (!res.ok) {
     throw new Error(`UNDP site returned ${res.status}`);
   }
