@@ -86,6 +86,18 @@ export function parseDayMonComma(text) {
   return `${year}-${month}-${day.padStart(2, '0')}`;
 }
 
+// Parses IsDB's "24 August 2025" style dates (full month name) into
+// "2025-08-24".
+export function parseFullMonthDate(text) {
+  if (!text) return null;
+  const match = text.trim().match(/(\d{1,2})\s+([A-Za-z]+)\s+(\d{4})/);
+  if (!match) return null;
+  const [, day, monFull, year] = match;
+  const month = MONTHS[monFull.slice(0, 3).toLowerCase()];
+  if (!month) return null;
+  return `${year}-${month}-${day.padStart(2, '0')}`;
+}
+
 // Parses SFD's "19-04-2026" (dd-mm-yyyy) style dates into "2026-04-19".
 export function parseDDMMYYYY(text) {
   if (!text) return null;
