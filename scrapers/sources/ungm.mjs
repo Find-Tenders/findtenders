@@ -19,13 +19,19 @@ async function fetchNotices() {
     url: URL,
     formats: ['html'],
     actions: [
+      // Give the page time to finish its own load/init before we touch
+      // jQuery — a live run once raced this and the country selection
+      // silently no-opped, which then inserted unfiltered global results
+      // (verified via the resulting bad data: Congo/Pakistan/Afghanistan/
+      // etc, not Yemen). This wait plus the sanity checks below are the fix.
+      { type: 'wait', milliseconds: 1500 },
       {
         type: 'executeJavascript',
         script: `$('#selNoticeCountry').val('${YEMEN_COUNTRY_ID}').trigger('change'); $('#isCountrySelected').val('true');`,
       },
-      { type: 'wait', milliseconds: 800 },
+      { type: 'wait', milliseconds: 1200 },
       { type: 'click', selector: '#lnkSearch' },
-      { type: 'wait', milliseconds: 3000 },
+      { type: 'wait', milliseconds: 3500 },
     ],
   });
 
@@ -42,7 +48,19 @@ async function fetchNotices() {
 
     if (title && href) notices.push({ title, href, deadline, org, type, country });
   });
-  return notices;
+
+  // Never trust the site's own filter alone (same lesson as World Bank
+  // and IsDB) — a run can silently return the unfiltered global listing
+  // if the country selection didn't take. If most rows aren't Yemen,
+  // treat the whole batch as untrustworthy rather than insert it.
+  const nonYemenCount = notices.filter((n) => n.country !== 'Yemen').length;
+  if (notices.length > 0 && nonYemenCount / notices.length > 0.5) {
+    throw new Error(
+      `Country filter appears to have failed: ${nonYemenCount}/${notices.length} results aren't Yemen`
+    );
+  }
+
+  return notices.filter((n) => n.country === 'Yemen');
 }
 
 async function main() {
