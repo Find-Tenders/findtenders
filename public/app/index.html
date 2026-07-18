@@ -11,80 +11,907 @@
 <style>
   :root{
     --deep-space:#0F1118; --dark-navy:#1C1C2E; --slate:#2A2A42; --muted:#64748B;
-    --teal:#2DD4BF; --teal-dark:#0D9488; --gold:#F5C842; --text:#F1F2F6;
+    --teal:#2DD4BF; --teal-dark:#0D9488; --red:#F87171; --red-dark:#DC2626;
+    --gold:#F5C842; --gold-dark:#D4A017; --success:#16A34A; --text:#F1F2F6;
   }
   *{box-sizing:border-box;}
   body{margin:0;background:var(--deep-space);color:var(--text);font-family:'Readex Pro',sans-serif;min-height:100vh;}
-  header{background:var(--dark-navy);border-bottom:1px solid var(--slate);padding:16px 24px;display:flex;align-items:center;justify-content:space-between;}
+  header{background:var(--dark-navy);border-bottom:1px solid var(--slate);padding:16px 24px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:10;flex-wrap:wrap;gap:12px;}
   .logo{display:flex;align-items:center;gap:10px;}
   .logo-icon{width:36px;height:36px;border-radius:10px;background:linear-gradient(135deg,var(--teal),var(--teal-dark));display:flex;align-items:center;justify-content:center;font-size:18px;}
-  .logo-text{font-family:'Space Grotesk',sans-serif;font-weight:900;font-size:20px;}
+  .logo-text{font-family:'Space Grotesk',sans-serif;font-weight:900;font-size:20px;letter-spacing:-.3px;}
   .logo-text span{color:var(--teal);}
-  .btn{border:none;border-radius:10px;padding:10px 18px;font-family:'Readex Pro';font-weight:600;font-size:13px;cursor:pointer;background:var(--slate);color:var(--text);}
-  .btn:hover{background:#37374f;}
-  main{max-width:600px;margin:0 auto;padding:40px 20px;}
-  .card{background:var(--dark-navy);border:1px solid var(--slate);border-radius:14px;padding:24px;}
-  .card h2{margin:0 0 4px;font-size:18px;}
-  .card p{color:var(--muted);font-size:13px;margin:4px 0;}
-  .row{display:flex;justify-content:space-between;padding:9px 0;border-bottom:1px solid var(--slate);font-size:13px;}
-  .row:last-child{border-bottom:none;}
-  .row .lbl{color:var(--muted);}
-  .note{background:var(--slate);border-radius:10px;padding:12px 16px;font-size:12px;color:var(--muted);margin-top:18px;}
-  .loading{text-align:center;color:var(--muted);padding:60px 20px;}
+  .logo-sub{font-size:9px;color:var(--muted);letter-spacing:1.5px;font-family:'Space Grotesk',sans-serif;font-weight:500;}
+  nav{display:flex;gap:6px;background:var(--slate);border-radius:10px;padding:4px;}
+  nav button{background:none;border:none;color:var(--muted);font-family:'Readex Pro';font-size:13px;font-weight:600;padding:8px 18px;border-radius:8px;cursor:pointer;transition:.15s;display:flex;align-items:center;gap:6px;}
+  nav button.active{background:var(--teal-dark);color:#fff;}
+  .avatar-btn{width:38px;height:38px;border-radius:50%;background:var(--slate);border:2px solid var(--teal-dark);display:flex;align-items:center;justify-content:center;font-weight:700;font-family:'Space Grotesk';cursor:pointer;}
+  main{max-width:1080px;margin:0 auto;padding:28px 20px 80px;}
+  .section-note{background:var(--slate);border-radius:10px;padding:10px 16px;font-size:12px;color:var(--muted);margin-bottom:18px;}
+
+  .stats-row{display:flex;gap:12px;margin-bottom:20px;flex-wrap:wrap;}
+  .stat-card{background:var(--dark-navy);border:1px solid var(--slate);border-radius:12px;padding:14px 18px;flex:1;min-width:130px;}
+  .stat-card .num{font-family:'Space Grotesk';font-weight:700;font-size:24px;color:var(--teal);}
+  .stat-card .label{font-size:12px;color:var(--muted);margin-top:2px;}
+  .toolbar{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:18px;align-items:center;}
+  .search-wrap{flex:1;min-width:220px;position:relative;}
+  .search-wrap input{width:100%;background:var(--dark-navy);border:1px solid var(--slate);color:var(--text);padding:11px 52px 11px 14px;border-radius:10px;font-family:'Readex Pro';font-size:14px;}
+  .search-wrap input:focus{outline:none;border-color:var(--teal-dark);}
+  .search-btn{position:absolute;right:5px;top:5px;bottom:5px;width:38px;background:var(--teal-dark);border:none;border-radius:7px;color:#fff;font-size:15px;cursor:pointer;transition:.15s;display:flex;align-items:center;justify-content:center;}
+  .search-btn:hover{background:var(--teal);}
+  .search-btn:disabled{opacity:.5;cursor:not-allowed;}
+  select{background:var(--dark-navy);border:1px solid var(--slate);color:var(--text);padding:11px 14px;border-radius:10px;font-family:'Readex Pro';font-size:13px;cursor:pointer;}
+  .plan-pill{display:flex;align-items:center;gap:6px;background:var(--slate);border-radius:10px;padding:9px 14px;font-size:12px;color:var(--muted);}
+  .plan-pill b{color:var(--gold);}
+  .search-gate{background:linear-gradient(120deg,rgba(220,38,38,.12),rgba(220,38,38,.04));border:1px solid rgba(220,38,38,.35);border-radius:12px;padding:14px 18px;margin-bottom:16px;display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;font-size:13px;}
+  .tender-card{background:var(--dark-navy);border:1px solid var(--slate);border-radius:14px;padding:18px 20px;margin-bottom:12px;transition:.15s;position:relative;}
+  .tender-card:hover{border-color:var(--teal-dark);}
+  .tender-top{display:flex;justify-content:space-between;gap:10px;}
+  .tender-title{font-size:16px;font-weight:600;margin-bottom:10px;line-height:1.5;cursor:pointer;}
+  .save-btn{background:none;border:none;font-size:18px;cursor:pointer;color:var(--muted);flex-shrink:0;transition:.15s;}
+  .save-btn.saved{color:var(--gold);}
+  .tender-tags{display:flex;gap:8px;flex-wrap:wrap;align-items:center;font-size:12px;}
+  .tag{display:flex;align-items:center;gap:4px;padding:4px 10px;border-radius:7px;background:var(--slate);color:#cbd0dc;font-weight:500;}
+  .tag.priority-high{background:rgba(220,38,38,.18);color:var(--red);}
+  .tag.priority-medium{background:rgba(217,119,6,.18);color:#F5A857;}
+  .tag.priority-normal{background:rgba(13,148,136,.18);color:var(--teal);}
+  .empty{text-align:center;padding:60px 20px;color:var(--muted);}
+  .empty .big{font-size:15px;color:var(--text);margin-bottom:6px;}
+  .cta-banner{margin-top:28px;background:linear-gradient(120deg,rgba(245,200,66,.12),rgba(45,212,191,.08));border:1px solid rgba(245,200,66,.35);border-radius:14px;padding:22px 24px;display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap;}
+  .cta-banner h3{margin:0 0 4px;font-size:16px;}
+  .cta-banner p{margin:0;color:var(--muted);font-size:13px;}
+  .btn{border:none;border-radius:10px;padding:11px 20px;font-family:'Readex Pro';font-weight:600;font-size:13px;cursor:pointer;transition:.15s;}
+  .btn-gold{background:linear-gradient(135deg,var(--gold),var(--gold-dark));color:#1C1C2E;}
+  .btn-gold:hover{filter:brightness(1.08);}
+  .btn-teal{background:var(--teal-dark);color:#fff;}
+  .btn-teal:hover{background:var(--teal);}
+  .btn-ghost{background:var(--slate);color:var(--text);}
+  .btn-ghost:hover{background:#37374f;}
+  .btn-red-outline{background:none;border:1px solid var(--red-dark);color:var(--red);}
+  .btn-red-outline:hover{background:rgba(220,38,38,.1);}
+  .btn-sm{padding:7px 14px;font-size:12px;}
+  .btn:disabled{opacity:.45;cursor:not-allowed;}
+  .btn-block{width:100%;}
+
+  .profile-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+  @media(max-width:760px){.profile-grid{grid-template-columns:1fr;}}
+  .card{background:var(--dark-navy);border:1px solid var(--slate);border-radius:14px;padding:20px;}
+  .card h3{margin:0 0 4px;font-size:15px;}
+  .card .sub{color:var(--muted);font-size:12px;margin-bottom:16px;}
+  .profile-head{display:flex;align-items:center;gap:14px;margin-bottom:6px;}
+  .profile-avatar{width:56px;height:56px;border-radius:50%;background:linear-gradient(135deg,var(--teal),var(--teal-dark));display:flex;align-items:center;justify-content:center;font-family:'Space Grotesk';font-weight:700;font-size:20px;}
+  .profile-name{font-weight:700;font-size:16px;}
+  .profile-email{color:var(--muted);font-size:12px;}
+  .plan-badge{display:inline-flex;align-items:center;gap:6px;padding:5px 12px;border-radius:20px;font-size:12px;font-weight:700;margin-top:10px;}
+  .plan-badge.free{background:var(--slate);color:var(--muted);}
+  .plan-badge.paid{background:rgba(245,200,66,.15);color:var(--gold);}
+  .plan-actions{display:flex;gap:8px;margin-top:16px;flex-wrap:wrap;}
+  .row-line{display:flex;justify-content:space-between;align-items:center;padding:9px 0;border-bottom:1px solid var(--slate);font-size:13px;}
+  .row-line:last-child{border-bottom:none;}
+  .row-line .lbl{color:var(--muted);}
+  .chip-group{display:flex;flex-wrap:wrap;gap:8px;}
+  .chip{padding:7px 14px;border-radius:20px;font-size:12px;background:var(--slate);color:var(--muted);cursor:pointer;border:1px solid transparent;transition:.15s;}
+  .chip.selected{background:rgba(13,148,136,.18);color:var(--teal);border-color:var(--teal-dark);}
+  .toggle-row{display:flex;justify-content:space-between;align-items:center;padding:11px 0;border-bottom:1px solid var(--slate);}
+  .toggle-row:last-child{border-bottom:none;}
+  .toggle-row .t-label{font-size:13px;}
+  .toggle-row .t-desc{font-size:11px;color:var(--muted);margin-top:2px;}
+  .switch{position:relative;width:42px;height:24px;flex-shrink:0;}
+  .switch input{opacity:0;width:0;height:0;}
+  .slider{position:absolute;cursor:pointer;inset:0;background:var(--slate);border-radius:24px;transition:.2s;}
+  .slider::before{content:'';position:absolute;height:18px;width:18px;right:3px;bottom:3px;background:#fff;border-radius:50%;transition:.2s;}
+  input:checked + .slider{background:var(--teal-dark);}
+  input:checked + .slider::before{transform:translateX(-18px);}
+  input:disabled + .slider{opacity:.4;cursor:not-allowed;}
+  .saved-item{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid var(--slate);font-size:13px;gap:10px;}
+  .saved-item:last-child{border-bottom:none;}
+  .saved-item .rm{background:none;border:none;color:var(--muted);cursor:pointer;font-size:16px;}
+  .usage-bar-wrap{background:var(--slate);border-radius:8px;height:8px;overflow:hidden;margin-top:8px;}
+  .usage-bar{height:100%;background:linear-gradient(90deg,var(--teal-dark),var(--teal));border-radius:8px;}
+
+  .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.65);display:none;align-items:center;justify-content:center;z-index:100;padding:16px;}
+  .modal-overlay.show{display:flex;}
+  .modal{background:var(--dark-navy);border:1px solid var(--slate);border-radius:16px;padding:26px;max-width:640px;width:100%;max-height:90vh;overflow-y:auto;position:relative;}
+  .modal h2{margin:0 0 4px;font-size:18px;}
+  .modal .sub{color:var(--muted);font-size:12px;margin-bottom:20px;}
+  .modal-close{position:absolute;left:18px;top:18px;background:none;border:none;color:var(--muted);font-size:18px;cursor:pointer;}
+
+  .sector-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:8px;margin-bottom:8px;}
+  .sector-opt{border:1px solid var(--slate);border-radius:10px;padding:12px 10px;text-align:center;font-size:12px;cursor:pointer;background:var(--slate);transition:.15s;}
+  .sector-opt.selected{border-color:var(--teal-dark);background:rgba(13,148,136,.18);color:var(--teal);}
+  .limit-note{font-size:12px;color:var(--muted);margin-bottom:16px;}
+  .limit-note b{color:var(--gold);}
+
+  .pkg-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:6px;}
+  @media(max-width:600px){.pkg-grid{grid-template-columns:1fr;}}
+  .pkg-card{border:1.5px solid var(--slate);border-radius:12px;padding:14px 12px;cursor:pointer;transition:.15s;position:relative;}
+  .pkg-card:hover{border-color:var(--teal-dark);}
+  .pkg-card.selected{border-color:var(--gold);background:rgba(245,200,66,.08);}
+  .pkg-card .pname{font-size:12px;color:var(--muted);margin-bottom:2px;}
+  .pkg-card .pprice{font-family:'Space Grotesk';font-weight:700;font-size:20px;}
+  .pkg-card .pprice span{font-size:11px;color:var(--muted);font-weight:500;}
+  .pkg-card ul{list-style:none;margin:10px 0 0;padding:0;font-size:11px;color:#cbd0dc;line-height:1.9;}
+  .pkg-card .current-tag{position:absolute;top:-9px;right:10px;background:var(--teal-dark);color:#fff;font-size:9px;padding:2px 8px;border-radius:6px;font-weight:700;}
+
+  .pay-method-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:16px 0;}
+  .pay-opt{border:1.5px solid var(--slate);border-radius:12px;padding:16px;text-align:center;cursor:pointer;transition:.15s;}
+  .pay-opt:hover{border-color:var(--teal-dark);}
+  .pay-opt.selected{border-color:var(--teal-dark);background:rgba(13,148,136,.1);}
+  .pay-opt.disabled{opacity:.45;cursor:not-allowed;}
+  .pay-opt .picon{font-size:24px;margin-bottom:6px;}
+  .pay-opt .pname{font-size:13px;font-weight:600;}
+  .pay-opt .pdesc{font-size:11px;color:var(--muted);margin-top:2px;}
+
+  .wallet-list{display:flex;flex-direction:column;gap:8px;margin:14px 0;}
+  .wallet-opt{border:1px solid var(--slate);border-radius:10px;padding:11px 14px;display:flex;justify-content:space-between;align-items:center;cursor:pointer;font-size:13px;}
+  .wallet-opt:hover{border-color:var(--teal-dark);}
+  .wallet-opt.selected{border-color:var(--teal-dark);background:rgba(13,148,136,.08);}
+
+  .transfer-box{background:var(--slate);border-radius:12px;padding:16px;margin:14px 0;}
+  .transfer-row{display:flex;justify-content:space-between;padding:7px 0;font-size:13px;border-bottom:1px solid rgba(255,255,255,.06);}
+  .transfer-row:last-child{border-bottom:none;}
+  .transfer-row .v{font-family:'Space Grotesk';font-weight:600;}
+  .copy-btn{background:none;border:none;color:var(--teal);font-size:11px;cursor:pointer;}
+
+  .file-drop{border:1.5px dashed var(--slate);border-radius:12px;padding:20px;text-align:center;font-size:12px;color:var(--muted);cursor:pointer;margin:14px 0;transition:.15s;}
+  .file-drop:hover{border-color:var(--teal-dark);}
+  .file-drop.filled{border-color:var(--teal-dark);color:var(--teal);border-style:solid;}
+  .file-drop input{display:none;}
+
+  .email-preview{background:var(--slate);border-radius:12px;padding:16px;font-size:12px;line-height:1.9;margin:14px 0;}
+  .email-preview .ef{color:var(--muted);}
+
+  .step-dots{display:flex;gap:6px;justify-content:center;margin-bottom:20px;}
+  .step-dots span{width:7px;height:7px;border-radius:50%;background:var(--slate);}
+  .step-dots span.active{background:var(--teal);}
+
+  .toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--dark-navy);border:1px solid var(--success);color:#fff;padding:12px 22px;border-radius:10px;font-size:13px;opacity:0;transition:.25s;pointer-events:none;display:flex;align-items:center;gap:8px;z-index:150;}
+  .toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+  .toast.error{border-color:var(--red);}
+  .form-error{font-size:12px;color:var(--red);margin:-6px 0 12px;}
+  .loading-screen{text-align:center;color:var(--muted);padding:100px 20px;}
 </style>
 </head>
 <body>
 
+<div class="loading-screen" id="loadingScreen">جارٍ التحميل...</div>
+
+<div id="appRoot" style="display:none;">
 <header>
   <div class="logo">
     <div class="logo-icon">🔍</div>
-    <div class="logo-text">find<span>TENDERS</span></div>
+    <div><div class="logo-text">find<span>TENDERS</span></div><div class="logo-sub">AI-POWERED · YEMEN</div></div>
   </div>
-  <button class="btn" id="signOutBtn">🚪 تسجيل الخروج</button>
+  <nav>
+    <button class="active" id="navTenders">📋 المناقصات</button>
+    <button id="navProfile">👤 حسابي</button>
+  </nav>
+  <div style="display:flex;align-items:center;gap:10px;">
+    <a href="../" style="font-size:12px;color:var(--muted);text-decoration:none;">🌐 الموقع الرئيسي</a>
+    <div class="avatar-btn" id="avatarBtn" title="حسابي">أ</div>
+  </div>
 </header>
 
 <main>
-  <div id="loading" class="loading">جارٍ التحميل...</div>
-  <div class="card" id="profileCard" style="display:none;">
-    <h2 id="welcomeName"></h2>
-    <p id="welcomeEmail"></p>
-    <div style="margin-top:16px;">
-      <div class="row"><span class="lbl">الباقة الحالية</span><span id="fPlan"></span></div>
-      <div class="row"><span class="lbl">القطاعات المفعّلة</span><span id="fSectors"></span></div>
-      <div class="row"><span class="lbl">عمليات البحث المستخدمة</span><span id="fSearches"></span></div>
-    </div>
-    <div class="note">هذه صفحة تأكيد مؤقتة تثبت أن تسجيل الدخول وقاعدة البيانات متصلان بشكل صحيح. التطبيق الكامل (البحث عن المناقصات، اختيار القطاعات، الترقية) قادم في الخطوة التالية.</div>
+<!-- ================= TENDERS TAB ================= -->
+<div id="tab-tenders">
+  <div class="stats-row">
+    <div class="stat-card"><div class="num" id="statCount">0</div><div class="label">نتيجة معروضة</div></div>
+    <div class="stat-card"><div class="num" id="statSites">—</div><div class="label">مواقع ضمن خطتك</div></div>
+    <div class="stat-card"><div class="num" id="statSearches">0</div><div class="label">عمليات بحث متبقية هذا الشهر</div></div>
+    <div class="stat-card"><div class="num" id="statSectors">0</div><div class="label">قطاع مفعّل</div></div>
   </div>
+
+  <div class="search-gate" id="searchGate" style="display:none;">
+    ⚠️ استهلكت كل عمليات البحث المتاحة هذا الشهر —
+    <button class="btn btn-gold btn-sm" id="gateUpgradeBtn">رفع الباقة للمزيد من عمليات البحث</button>
+  </div>
+
+  <div class="toolbar">
+    <div class="search-wrap"><input id="searchInput" type="text" placeholder="ابحث عن مناقصة، جهة..."><button class="search-btn" id="runSearchBtn" title="بحث">🔎</button></div>
+    <select id="sectorQuickFilter"></select>
+    <select id="priorityFilter">
+      <option value="">كل الأولويات</option>
+      <option value="high">عالية</option>
+      <option value="medium">متوسطة</option>
+      <option value="normal">عادية</option>
+    </select>
+    <div class="plan-pill">الباقة: <b id="planPillLabel">—</b></div>
+    <button class="btn btn-ghost btn-sm" id="editSectorsBtn">🏷️ تعديل القطاعات</button>
+  </div>
+
+  <div id="tenderList"></div>
+
+  <div class="cta-banner" id="ctaBanner">
+    <div><h3>🔓 ترقّ لبحث أكثر وقطاعات ومواقع إضافية</h3><p>الباقات المدفوعة تبدأ من $20/شهر — بحث أكثر، قطاعات أكثر، ومواقع أكثر.</p></div>
+    <button class="btn btn-gold" id="ctaUpgradeBtn">عرض الباقات</button>
+  </div>
+</div>
+
+<!-- ================= PROFILE TAB ================= -->
+<div id="tab-profile" style="display:none;">
+  <div class="profile-grid">
+    <div class="card">
+      <div class="profile-head">
+        <div class="profile-avatar" id="profileAvatarInitial">أ</div>
+        <div><div class="profile-name" id="profileName"></div><div class="profile-email" id="profileEmail"></div></div>
+      </div>
+      <span class="plan-badge free" id="planBadge">⚪ الباقة المجانية</span>
+      <div style="margin-top:16px;">
+        <div class="row-line"><span class="lbl">تاريخ الانضمام</span><span id="joinDate">—</span></div>
+        <div class="row-line"><span class="lbl">تجديد/انتهاء الباقة</span><span id="renewalDate">—</span></div>
+      </div>
+      <div class="plan-actions">
+        <button class="btn btn-gold btn-sm" id="upgradeBtn">⬆ ترقية الباقة</button>
+        <button class="btn btn-red-outline btn-sm" id="cancelBtn" style="display:none;">إلغاء الاشتراك</button>
+        <button class="btn btn-ghost btn-sm" id="signOutBtn">🚪 تسجيل الخروج</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>الاستخدام هذا الشهر</h3>
+      <div class="sub">يُعاد التعيين أول كل شهر</div>
+      <div class="row-line"><span class="lbl">عمليات البحث</span><span id="usageText">0 / 0</span></div>
+      <div class="usage-bar-wrap"><div class="usage-bar" id="usageBar" style="width:0%;"></div></div>
+    </div>
+
+    <div class="card">
+      <h3>القطاعات المفعّلة</h3>
+      <div class="sub" id="sectorLimitText">—</div>
+      <div class="chip-group" id="sectorChipsProfile"></div>
+      <button class="btn btn-ghost btn-sm" style="margin-top:14px;" id="editSectorsBtn2">تعديل القطاعات</button>
+    </div>
+
+    <div class="card">
+      <h3>الإشعارات</h3>
+      <div class="sub" id="updatesFreqText">—</div>
+      <div class="toggle-row">
+        <div><div class="t-label">تحديثات بالبريد</div><div class="t-desc" id="notifDesc">—</div></div>
+        <label class="switch"><input type="checkbox" id="notifWeekly"><span class="slider"></span></label>
+      </div>
+    </div>
+
+    <div class="card" style="grid-column:1 / -1;">
+      <h3>المناقصات المحفوظة</h3>
+      <div class="sub">اضغط ⭐ على أي مناقصة لحفظها هنا</div>
+      <div id="savedList"><div class="empty" style="padding:20px;">لا توجد مناقصات محفوظة بعد</div></div>
+    </div>
+  </div>
+</div>
 </main>
+
+<!-- ============ TENDER DETAIL MODAL ============ -->
+<div class="modal-overlay" id="tenderDetailModal">
+  <div class="modal" style="max-width:520px;">
+    <button class="modal-close" id="closeTenderDetail">✕</button>
+    <div class="tender-tags" id="detailTags" style="margin-bottom:14px;"></div>
+    <h2 id="detailTitle" style="font-size:17px;line-height:1.6;"></h2>
+    <div class="transfer-box" style="margin-top:16px;">
+      <div class="transfer-row"><span>الجهة</span><span class="v" id="detailOrg"></span></div>
+      <div class="transfer-row"><span>الموقع</span><span class="v" id="detailLocation"></span></div>
+      <div class="transfer-row"><span>القطاع</span><span class="v" id="detailSector"></span></div>
+      <div class="transfer-row"><span>الموعد النهائي</span><span class="v" id="detailDeadline"></span></div>
+    </div>
+    <div style="margin-top:16px;">
+      <div style="font-size:12px;color:var(--muted);margin-bottom:6px;">الوصف</div>
+      <p id="detailDescription" style="font-size:13px;line-height:1.9;color:#dfe2ea;margin:0;"></p>
+    </div>
+    <a id="detailLink" href="#" target="_blank" rel="noopener" class="btn btn-teal btn-block" style="margin-top:20px;display:block;text-align:center;text-decoration:none;">🔗 فتح المناقصة في الموقع الأصلي</a>
+  </div>
+</div>
+
+<!-- ============ SECTOR MODAL ============ -->
+<div class="modal-overlay" id="sectorModal">
+  <div class="modal">
+    <button class="modal-close" id="closeSectorModal">✕</button>
+    <h2>اختر قطاعاتك</h2>
+    <p class="sub">نعرض لك فقط المناقصات من القطاعات التي تختارها</p>
+    <div class="limit-note" id="sectorLimitNote"></div>
+    <div class="sector-grid" id="sectorGrid"></div>
+    <button class="btn btn-teal btn-block" id="saveSectorsBtn">حفظ القطاعات</button>
+  </div>
+</div>
+
+<!-- ============ UPGRADE MODAL ============ -->
+<div class="modal-overlay" id="upgradeModal">
+  <div class="modal">
+    <button class="modal-close" id="closeUpgradeModal">✕</button>
+
+    <div id="up-step-package">
+      <h2>اختر باقتك</h2>
+      <p class="sub">قارن بين الباقات واختر ما يناسبك</p>
+      <div class="pkg-grid" id="pkgGrid"></div>
+      <button class="btn btn-teal btn-block" style="margin-top:16px;" id="goToPaymentBtn">متابعة</button>
+    </div>
+
+    <div id="up-step-payment" style="display:none;">
+      <div class="step-dots"><span class="active"></span><span></span><span></span></div>
+      <h2>طريقة الدفع</h2>
+      <p class="sub">باقة <b id="chosenPkgLabel"></b> — <span id="chosenPkgPrice"></span></p>
+      <div class="pay-method-grid">
+        <div class="pay-opt disabled" id="payStripe">
+          <div class="picon">💳</div><div class="pname">Stripe</div><div class="pdesc">قريبًا</div>
+        </div>
+        <div class="pay-opt" id="payWallet">
+          <div class="picon">📱</div><div class="pname">محفظة يمنية</div><div class="pdesc">فلوسك، جوالي، ون كارد وغيرها</div>
+        </div>
+      </div>
+      <button class="btn btn-teal btn-block" id="goFromPaymentBtn">متابعة</button>
+    </div>
+
+    <div id="up-step-wallet" style="display:none;">
+      <div class="step-dots"><span class="active"></span><span class="active"></span><span></span></div>
+      <h2>اختر محفظتك</h2>
+      <p class="sub">سنعرض لك رقم الحساب المخصص للتحويل</p>
+      <div class="wallet-list" id="walletList"></div>
+      <button class="btn btn-teal btn-block" id="walletContinueBtn" disabled>متابعة</button>
+    </div>
+
+    <div id="up-step-transfer" style="display:none;">
+      <div class="step-dots"><span class="active"></span><span class="active"></span><span class="active"></span></div>
+      <h2>حوّل المبلغ وأرفق الإيصال</h2>
+      <p class="sub">حوّل عبر <b id="transferWalletName"></b> إلى الحساب التالي، ثم أرفق صورة الإيصال</p>
+      <div class="transfer-box">
+        <div class="transfer-row"><span>اسم الحساب</span><span class="v" id="transferAccountName"></span></div>
+        <div class="transfer-row"><span>رقم الحساب</span><span class="v"><span id="transferAccountNumber"></span> <button class="copy-btn" id="copyAccountBtn">نسخ</button></span></div>
+        <div class="transfer-row"><span>المبلغ المطلوب</span><span class="v" id="transferAmount"></span></div>
+      </div>
+      <div class="file-drop" id="fileDrop">
+        📎 اضغط لإرفاق صورة الإيصال
+        <input type="file" id="receiptFile" accept="image/*">
+      </div>
+      <div class="form-error" id="uploadError"></div>
+      <button class="btn btn-teal btn-block" id="submitRequestBtn" disabled>إرسال طلب التفعيل</button>
+    </div>
+
+    <div id="up-step-email" style="display:none;">
+      <div class="step-dots"><span class="active"></span><span class="active"></span><span class="active"></span></div>
+      <h2>تم إرسال طلبك ✅</h2>
+      <p class="sub">سيراجع فريقنا الإيصال ويفعّل باقتك خلال ساعات. فتحنا لك أيضًا رسالة بريد جاهزة كإشعار إضافي — أرفق صورة الإيصال فيها يدويًا واضغط إرسال إن رغبت.</p>
+      <div class="email-preview">
+        <div><span class="ef">إلى:</span> billing@findtenders.net</div>
+        <div><span class="ef">الموضوع:</span> طلب تفعيل اشتراك — <span id="emailPkgName"></span></div>
+        <div style="margin-top:8px;">الاسم الكامل: <span id="emailName"></span></div>
+        <div>البريد الإلكتروني: <span id="emailEmail"></span></div>
+        <div>الباقة المطلوبة: <span id="emailPkgName2"></span></div>
+        <div>طريقة الدفع: <span id="emailWalletName"></span></div>
+        <div>المبلغ المحوّل: <span id="emailAmount"></span></div>
+      </div>
+      <button class="btn btn-gold btn-block" id="openMailBtn">فتح تطبيق البريد (اختياري)</button>
+      <button class="btn btn-ghost btn-block" style="margin-top:8px;" id="doneUpgradeBtn">تم</button>
+    </div>
+  </div>
+</div>
+
+<!-- Cancel confirm -->
+<div class="modal-overlay" id="cancelModal">
+  <div class="modal" style="max-width:380px;">
+    <h2>إلغاء الاشتراك؟</h2>
+    <p class="sub">سترجع فورًا للباقة المجانية.</p>
+    <div style="display:flex;gap:8px;">
+      <button class="btn btn-red-outline btn-block" id="confirmCancelBtn">تأكيد الإلغاء</button>
+      <button class="btn btn-ghost btn-block" id="closeCancelModal">تراجع</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast">✅ <span id="toastMsg"></span></div>
+</div><!-- /appRoot -->
 
 <script type="module">
 import { supabase } from '../assets/js/supabaseClient.js';
 import { requireSession, getMyProfile, signOut } from '../assets/js/auth.js';
 
-const session = await requireSession('../');
-if(session){
-  try{
-    const profile = await getMyProfile();
-    document.getElementById('welcomeName').textContent = 'مرحبًا، ' + (profile.full_name || session.user.email);
-    document.getElementById('welcomeEmail').textContent = session.user.email;
-    const planLabels = { free:'مجانية', basic:'الأساسية', professional:'الاحترافية', comprehensive:'الشاملة' };
-    document.getElementById('fPlan').textContent = planLabels[profile.plan] || profile.plan;
-    document.getElementById('fSectors').textContent = profile.selected_sectors.length ? profile.selected_sectors.join('، ') : 'لم تُختر بعد';
-    document.getElementById('fSearches').textContent = profile.searches_used;
-    document.getElementById('loading').style.display = 'none';
-    document.getElementById('profileCard').style.display = 'block';
-  } catch(err){
-    document.getElementById('loading').textContent = 'تعذّر تحميل الملف الشخصي: ' + err.message;
+// Placeholder wallet transfer details — replace with your real account info.
+const TRANSFER_ACCOUNT_NAME = 'FindTenders Yemen';
+const TRANSFER_ACCOUNT_NUMBER = '773 000 4521';
+const WALLETS = ['فلوسك (MTN)', 'جوالي (Yemen Mobile)', 'CashYemen', 'OneCard Yemen'];
+const PLAN_LABELS = { free: 'مجانية', basic: 'الأساسية', professional: 'الاحترافية', comprehensive: 'الشاملة' };
+const PRIORITY_LABEL = { high: 'عالية الأولوية', medium: 'متوسطة', normal: 'عادية' };
+const PRIORITY_ICON = { high: '🔴', medium: '🟠', normal: '🟢' };
+
+// ================= STATE =================
+let session, profile, planLimitsByKey, sectorsList, sectorLabelBySlug;
+let allTenders = [];
+let savedIds = new Set();
+let searchApplied = false;
+let searchText = '';
+let chosenPkg = null;
+let chosenWallet = null;
+let receiptFile = null;
+let receiptPath = null;
+let pendingSectorSelection = new Set();
+
+// ================= INIT =================
+session = await requireSession('../');
+if (session) {
+  try {
+    await loadEverything();
+    document.getElementById('loadingScreen').style.display = 'none';
+    document.getElementById('appRoot').style.display = 'block';
+    wireEvents();
+    if (!profile.selected_sectors || profile.selected_sectors.length === 0) {
+      openSectorModal();
+    }
+  } catch (err) {
+    document.getElementById('loadingScreen').textContent = 'حدث خطأ أثناء التحميل: ' + err.message;
+    console.error(err);
   }
 }
 
-document.getElementById('signOutBtn').addEventListener('click', async () => {
-  await signOut();
-  window.location.href = '../';
-});
+async function loadEverything() {
+  const [profileRes, limitsRes, sectorsRes] = await Promise.all([
+    getMyProfile(),
+    supabase.from('plan_limits').select('*'),
+    supabase.from('sectors').select('*').order('sort_order'),
+  ]);
+  profile = profileRes;
+  if (limitsRes.error) throw limitsRes.error;
+  if (sectorsRes.error) throw sectorsRes.error;
+  planLimitsByKey = Object.fromEntries(limitsRes.data.map((p) => [p.plan, p]));
+  sectorsList = sectorsRes.data;
+  sectorLabelBySlug = Object.fromEntries(sectorsList.map((s) => [s.slug, s.label_ar]));
 
-if('serviceWorker' in navigator){
-  navigator.serviceWorker.register('../sw.js').catch(()=>{});
+  await Promise.all([loadTenders(), loadSaved()]);
+  renderAll();
+}
+
+async function loadTenders() {
+  const sectors = profile.selected_sectors || [];
+  if (sectors.length === 0) { allTenders = []; return; }
+  const { data, error } = await supabase
+    .from('tenders')
+    .select('*')
+    .in('sector', sectors)
+    .order('created_at', { ascending: false });
+  if (error) throw error;
+  allTenders = data;
+}
+
+async function loadSaved() {
+  const { data, error } = await supabase
+    .from('saved_tenders')
+    .select('tender_id, tenders(*)')
+    .eq('user_id', session.user.id);
+  if (error) throw error;
+  savedIds = new Set(data.map((r) => r.tender_id));
+  window.__savedDetail = data.map((r) => r.tenders).filter(Boolean);
+}
+
+function currentLimits() { return planLimitsByKey[profile.plan]; }
+
+// ================= RENDER: TENDERS TAB =================
+function renderSectorQuickFilter() {
+  const sel = document.getElementById('sectorQuickFilter');
+  const current = sel.value;
+  const mySectors = profile.selected_sectors || [];
+  sel.innerHTML = `<option value="">كل قطاعاتي (${mySectors.length})</option>` +
+    mySectors.map((s) => `<option value="${s}">${sectorLabelBySlug[s] || s}</option>`).join('');
+  sel.value = mySectors.includes(current) ? current : '';
+}
+
+function renderTenders() {
+  const priority = document.getElementById('priorityFilter').value;
+  const quickSector = document.getElementById('sectorQuickFilter').value;
+  const list = document.getElementById('tenderList');
+  const lim = currentLimits();
+  const gateBlocked = profile.searches_used >= lim.searches_per_month && searchApplied === 'blocked';
+
+  const filtered = allTenders.filter((t) => {
+    const matchesQuickSector = !quickSector || t.sector === quickSector;
+    const matchesPriority = !priority || t.priority === priority;
+    const q = searchApplied ? searchText.trim().toLowerCase() : '';
+    const matchesQ = !q || t.title.toLowerCase().includes(q) || (t.org || '').toLowerCase().includes(q);
+    return matchesQuickSector && matchesPriority && matchesQ;
+  });
+
+  document.getElementById('statCount').textContent = filtered.length;
+
+  if (allTenders.length === 0) {
+    list.innerHTML = `<div class="empty"><div class="big">لا توجد مناقصات في قطاعاتك المفعّلة بعد</div>سنضيف مناقصات جديدة أولًا بأول مع كل عملية فحص للمصادر</div>`;
+    return;
+  }
+  if (filtered.length === 0) {
+    list.innerHTML = `<div class="empty"><div class="big">لا نتائج مطابقة</div>جرّب تعديل الفلاتر أو كلمة البحث</div>`;
+    return;
+  }
+  list.innerHTML = filtered.map((t) => {
+    const saved = savedIds.has(t.id);
+    return `<div class="tender-card">
+      <div class="tender-top">
+        <div class="tender-title" data-open-detail="${t.id}">${escapeHtml(t.title)}</div>
+        <button class="save-btn ${saved ? 'saved' : ''}" data-toggle-save="${t.id}" title="حفظ">${saved ? '⭐' : '☆'}</button>
+      </div>
+      <div class="tender-tags">
+        <span class="tag">📌 ${escapeHtml(t.org || '—')}</span>
+        <span class="tag">📍 ${escapeHtml(t.location_label || '—')}</span>
+        <span class="tag">🏷️ ${sectorLabelBySlug[t.sector] || t.sector || '—'}</span>
+        <span class="tag">⏰ ${t.deadline || '—'}</span>
+        <span class="tag priority-${t.priority}">${PRIORITY_ICON[t.priority]} ${PRIORITY_LABEL[t.priority]}</span>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function escapeHtml(s) {
+  return String(s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+}
+
+function openTenderDetail(id) {
+  const t = allTenders.find((x) => x.id === id) || (window.__savedDetail || []).find((x) => x.id === id);
+  if (!t) return;
+  document.getElementById('detailTitle').textContent = t.title;
+  document.getElementById('detailOrg').textContent = t.org || '—';
+  document.getElementById('detailLocation').textContent = t.location_label || '—';
+  document.getElementById('detailSector').textContent = sectorLabelBySlug[t.sector] || t.sector || '—';
+  document.getElementById('detailDeadline').textContent = t.deadline || '—';
+  document.getElementById('detailDescription').textContent = t.excerpt || 'لا يوجد وصف إضافي لهذه المناقصة.';
+  document.getElementById('detailLink').href = t.source_url || '#';
+  document.getElementById('detailTags').innerHTML = `<span class="tag priority-${t.priority}">${PRIORITY_ICON[t.priority]} ${PRIORITY_LABEL[t.priority]}</span>`;
+  document.getElementById('tenderDetailModal').classList.add('show');
+}
+
+async function toggleSave(id) {
+  if (savedIds.has(id)) {
+    await supabase.from('saved_tenders').delete().eq('user_id', session.user.id).eq('tender_id', id);
+    showToast('أُزيلت من المحفوظات');
+  } else {
+    await supabase.from('saved_tenders').insert({ user_id: session.user.id, tender_id: id });
+    showToast('أُضيفت إلى المحفوظات');
+  }
+  await loadSaved();
+  renderTenders();
+  renderSaved();
+}
+
+function renderSaved() {
+  const box = document.getElementById('savedList');
+  const items = window.__savedDetail || [];
+  if (items.length === 0) { box.innerHTML = `<div class="empty" style="padding:20px;">لا توجد مناقصات محفوظة بعد</div>`; return; }
+  box.innerHTML = items.map((t) => `<div class="saved-item"><span>${escapeHtml(t.title)}</span><button class="rm" data-toggle-save="${t.id}">✕</button></div>`).join('');
+}
+
+async function runSearch() {
+  const btn = document.getElementById('runSearchBtn');
+  btn.disabled = true;
+  try {
+    const { data, error } = await supabase.rpc('consume_search');
+    if (error) throw error;
+    if (!data.ok) {
+      searchApplied = 'blocked';
+      document.getElementById('searchGate').style.display = 'flex';
+      showToast('وصلت للحد الشهري لعمليات البحث — ارفع باقتك للمزيد', true);
+      renderTenders();
+      return;
+    }
+    profile.searches_used = data.used;
+    searchApplied = true;
+    searchText = document.getElementById('searchInput').value;
+    document.getElementById('searchGate').style.display = 'none';
+    updateUsageDisplays();
+    renderTenders();
+    showToast(`تم تنفيذ البحث (${data.used}/${data.limit} هذا الشهر)`);
+  } catch (err) {
+    showToast(err.message, true);
+  } finally {
+    btn.disabled = false;
+  }
+}
+
+function updateUsageDisplays() {
+  const lim = currentLimits();
+  const remaining = Math.max(0, lim.searches_per_month - profile.searches_used);
+  document.getElementById('statSearches').textContent = remaining;
+  document.getElementById('statSites').textContent = lim.max_sites;
+  document.getElementById('statSectors').textContent = (profile.selected_sectors || []).length;
+  document.getElementById('planPillLabel').textContent = PLAN_LABELS[profile.plan];
+  document.getElementById('usageText').textContent = `${profile.searches_used} / ${lim.searches_per_month}`;
+  document.getElementById('usageBar').style.width = Math.min(100, (profile.searches_used / lim.searches_per_month) * 100) + '%';
+  if (profile.searches_used >= lim.searches_per_month) {
+    document.getElementById('searchGate').style.display = 'flex';
+  }
+}
+
+// ================= RENDER: PROFILE TAB =================
+function renderProfile() {
+  const lim = currentLimits();
+  const isPaid = profile.plan !== 'free';
+  const initial = (profile.full_name || session.user.email || '?').trim()[0]?.toUpperCase() || '؟';
+
+  document.getElementById('profileAvatarInitial').textContent = initial;
+  document.getElementById('avatarBtn').textContent = initial;
+  document.getElementById('profileName').textContent = profile.full_name || session.user.email;
+  document.getElementById('profileEmail').textContent = session.user.email;
+  document.getElementById('planBadge').textContent = isPaid ? `🟡 ${PLAN_LABELS[profile.plan]} — نشطة` : '⚪ الباقة المجانية';
+  document.getElementById('planBadge').className = 'plan-badge ' + (isPaid ? 'paid' : 'free');
+  document.getElementById('joinDate').textContent = new Date(profile.created_at).toLocaleDateString('ar-EG', { year: 'numeric', month: 'long', day: 'numeric' });
+  document.getElementById('renewalDate').textContent = profile.plan_renews_at
+    ? new Date(profile.plan_renews_at).toLocaleDateString('ar-EG', { year: 'numeric', month: 'long', day: 'numeric' })
+    : '—';
+  document.getElementById('upgradeBtn').style.display = profile.plan === 'comprehensive' ? 'none' : 'inline-block';
+  document.getElementById('upgradeBtn').textContent = isPaid ? '⬆ تغيير الباقة' : '⬆ ترقية الباقة';
+  document.getElementById('cancelBtn').style.display = isPaid ? 'inline-block' : 'none';
+  document.getElementById('sectorLimitText').textContent = `خطتك الحالية تتيح ${lim.max_sectors} ${lim.max_sectors === 1 ? 'قطاعًا واحدًا' : 'قطاعات'}`;
+  document.getElementById('updatesFreqText').textContent = `${lim.updates_label} — ${PLAN_LABELS[profile.plan]}`;
+  document.getElementById('notifWeekly').disabled = !isPaid;
+  document.getElementById('notifWeekly').checked = !!profile.notify_email && isPaid;
+  document.getElementById('notifDesc').textContent = isPaid ? lim.updates_label : 'غير مفعّلة في الباقة المجانية';
+
+  const chipsBox = document.getElementById('sectorChipsProfile');
+  const mySectors = profile.selected_sectors || [];
+  chipsBox.innerHTML = mySectors.length
+    ? mySectors.map((s) => `<span class="chip selected">${sectorLabelBySlug[s] || s}</span>`).join('')
+    : `<span style="color:var(--muted);font-size:12px;">لم تختر أي قطاع بعد</span>`;
+
+  updateUsageDisplays();
+  renderSaved();
+}
+
+function renderAll() {
+  renderSectorQuickFilter();
+  renderTenders();
+  renderProfile();
+}
+
+// ================= SECTOR MODAL =================
+function openSectorModal() {
+  pendingSectorSelection = new Set(profile.selected_sectors || []);
+  renderSectorModal();
+  document.getElementById('sectorModal').classList.add('show');
+}
+function renderSectorModal() {
+  const lim = currentLimits();
+  document.getElementById('sectorLimitNote').innerHTML = `باقتك الحالية (<b>${PLAN_LABELS[profile.plan]}</b>) تتيح <b>${lim.max_sectors}</b> ${lim.max_sectors === 1 ? 'قطاع واحد' : 'قطاعات'}`;
+  document.getElementById('sectorGrid').innerHTML = sectorsList.map((s) => {
+    const sel = pendingSectorSelection.has(s.slug);
+    return `<div class="sector-opt ${sel ? 'selected' : ''}" data-toggle-sector="${s.slug}">${s.label_ar}</div>`;
+  }).join('');
+}
+function toggleSectorChoice(slug) {
+  const lim = currentLimits();
+  if (pendingSectorSelection.has(slug)) {
+    pendingSectorSelection.delete(slug);
+  } else {
+    if (pendingSectorSelection.size >= lim.max_sectors) {
+      showToast(`باقتك تتيح ${lim.max_sectors} قطاعات فقط — ارفع باقتك لإضافة المزيد`, true);
+      return;
+    }
+    pendingSectorSelection.add(slug);
+  }
+  renderSectorModal();
+}
+async function saveSectors() {
+  const selected = [...pendingSectorSelection];
+  const { error } = await supabase.from('profiles').update({ selected_sectors: selected }).eq('id', session.user.id);
+  if (error) { showToast(error.message, true); return; }
+  profile.selected_sectors = selected;
+  document.getElementById('sectorModal').classList.remove('show');
+  await loadTenders();
+  renderAll();
+  showToast('تم حفظ القطاعات');
+}
+
+// ================= UPGRADE MODAL =================
+function openUpgradeModal() {
+  const grid = document.getElementById('pkgGrid');
+  const paidPlans = Object.values(planLimitsByKey).filter((p) => p.plan !== 'free');
+  grid.innerHTML = paidPlans.map((p) => {
+    const isCurrent = p.plan === profile.plan;
+    return `<div class="pkg-card ${isCurrent ? 'selected' : ''}" data-pkg="${p.plan}">
+      ${isCurrent ? '<span class="current-tag">باقتك الحالية</span>' : ''}
+      <div class="pname">${PLAN_LABELS[p.plan]}</div>
+      <div class="pprice">$${p.monthly_price}<span>/شهر</span></div>
+      <ul>
+        <li>🔎 ${p.searches_per_month} بحث/شهر</li>
+        <li>🏷️ ${p.max_sectors} قطاع</li>
+        <li>🌐 ${p.max_sites} موقع</li>
+        <li>📧 ${p.updates_label}</li>
+      </ul>
+    </div>`;
+  }).join('');
+  chosenPkg = paidPlans.find((p) => p.monthly_price > (planLimitsByKey[profile.plan]?.monthly_price || 0)) || paidPlans[0];
+  markSelectedPkg();
+  showUpStep('up-step-package');
+  document.getElementById('upgradeModal').classList.add('show');
+}
+function markSelectedPkg() {
+  document.querySelectorAll('.pkg-card').forEach((el) => el.classList.toggle('selected', el.dataset.pkg === chosenPkg.plan));
+}
+function showUpStep(id) {
+  ['up-step-package', 'up-step-payment', 'up-step-wallet', 'up-step-transfer', 'up-step-email'].forEach((s) => {
+    document.getElementById(s).style.display = s === id ? 'block' : 'none';
+  });
+}
+function goToPayment() {
+  document.getElementById('chosenPkgLabel').textContent = PLAN_LABELS[chosenPkg.plan];
+  document.getElementById('chosenPkgPrice').textContent = '$' + chosenPkg.monthly_price + '/شهر';
+  showUpStep('up-step-payment');
+}
+function goToWallet() {
+  const wl = document.getElementById('walletList');
+  wl.innerHTML = WALLETS.map((w) => `<div class="wallet-opt" data-wallet="${w}">${w}<span>›</span></div>`).join('');
+  document.getElementById('walletContinueBtn').disabled = true;
+  chosenWallet = null;
+  showUpStep('up-step-wallet');
+}
+function selectWallet(w) {
+  chosenWallet = w;
+  document.querySelectorAll('.wallet-opt').forEach((el) => el.classList.toggle('selected', el.dataset.wallet === w));
+  document.getElementById('walletContinueBtn').disabled = false;
+}
+function goToTransfer() {
+  document.getElementById('transferWalletName').textContent = chosenWallet;
+  document.getElementById('transferAccountName').textContent = TRANSFER_ACCOUNT_NAME;
+  document.getElementById('transferAccountNumber').textContent = TRANSFER_ACCOUNT_NUMBER;
+  document.getElementById('transferAmount').textContent = '$' + chosenPkg.monthly_price;
+  receiptFile = null;
+  document.getElementById('fileDrop').classList.remove('filled');
+  document.getElementById('fileDrop').innerHTML = `📎 اضغط لإرفاق صورة الإيصال<input type="file" id="receiptFile" accept="image/*">`;
+  document.getElementById('receiptFile').addEventListener('change', onFileSelected);
+  document.getElementById('uploadError').textContent = '';
+  document.getElementById('submitRequestBtn').disabled = true;
+  showUpStep('up-step-transfer');
+}
+function onFileSelected() {
+  const input = document.getElementById('receiptFile');
+  const file = input.files?.[0];
+  if (!file) return;
+  if (file.size > 5 * 1024 * 1024) {
+    document.getElementById('uploadError').textContent = 'حجم الملف يجب ألا يتجاوز 5 ميغابايت';
+    return;
+  }
+  receiptFile = file;
+  document.getElementById('uploadError').textContent = '';
+  document.getElementById('fileDrop').classList.add('filled');
+  document.getElementById('fileDrop').innerHTML = `✅ تم إرفاق: ${escapeHtml(file.name)}`;
+  document.getElementById('submitRequestBtn').disabled = false;
+}
+async function submitUpgradeRequest() {
+  const btn = document.getElementById('submitRequestBtn');
+  btn.disabled = true;
+  btn.textContent = 'جارٍ الإرسال...';
+  try {
+    let path = null;
+    if (receiptFile) {
+      path = `${session.user.id}/${Date.now()}-${receiptFile.name}`;
+      const { error: uploadErr } = await supabase.storage.from('receipts').upload(path, receiptFile);
+      if (uploadErr) throw uploadErr;
+    }
+    const { error } = await supabase.from('subscription_requests').insert({
+      user_id: session.user.id,
+      requested_plan: chosenPkg.plan,
+      payment_method: 'wallet',
+      wallet_name: chosenWallet,
+      receipt_path: path,
+      amount: chosenPkg.monthly_price,
+    });
+    if (error) throw error;
+    receiptPath = path;
+    document.getElementById('emailPkgName').textContent = `${PLAN_LABELS[chosenPkg.plan]} — $${chosenPkg.monthly_price}/شهر`;
+    document.getElementById('emailPkgName2').textContent = `${PLAN_LABELS[chosenPkg.plan]} ($${chosenPkg.monthly_price}/شهر)`;
+    document.getElementById('emailName').textContent = profile.full_name || session.user.email;
+    document.getElementById('emailEmail').textContent = session.user.email;
+    document.getElementById('emailWalletName').textContent = chosenWallet;
+    document.getElementById('emailAmount').textContent = '$' + chosenPkg.monthly_price;
+    showUpStep('up-step-email');
+  } catch (err) {
+    document.getElementById('uploadError').textContent = err.message;
+  } finally {
+    btn.disabled = false;
+    btn.textContent = 'إرسال طلب التفعيل';
+  }
+}
+function openMailClient() {
+  const subject = encodeURIComponent('طلب تفعيل اشتراك — ' + PLAN_LABELS[chosenPkg.plan]);
+  const body = encodeURIComponent(
+    `الاسم الكامل: ${profile.full_name || ''}\nالبريد الإلكتروني: ${session.user.email}\nالباقة المطلوبة: ${PLAN_LABELS[chosenPkg.plan]} ($${chosenPkg.monthly_price}/شهر)\nطريقة الدفع: ${chosenWallet}\nالمبلغ المحوّل: $${chosenPkg.monthly_price}\n\n(الرجاء إرفاق صورة الإيصال يدويًا قبل الإرسال إن لم يتم إرفاقها مسبقًا)`
+  );
+  window.location.href = `mailto:billing@findtenders.net?subject=${subject}&body=${body}`;
+}
+
+// ================= CANCEL SUBSCRIPTION =================
+async function cancelSubscription() {
+  const { error } = await supabase.rpc('cancel_my_subscription');
+  if (error) { showToast(error.message, true); return; }
+  document.getElementById('cancelModal').classList.remove('show');
+  profile = await getMyProfile();
+  await loadTenders();
+  renderAll();
+  showToast('رجعت للباقة المجانية');
+}
+
+// ================= NOTIFICATIONS TOGGLE =================
+async function toggleNotify(checked) {
+  const { error } = await supabase.from('profiles').update({ notify_email: checked }).eq('id', session.user.id);
+  if (error) { showToast(error.message, true); document.getElementById('notifWeekly').checked = !checked; }
+}
+
+// ================= EVENTS =================
+function wireEvents() {
+  document.getElementById('navTenders').addEventListener('click', () => switchTab('tenders'));
+  document.getElementById('navProfile').addEventListener('click', () => switchTab('profile'));
+  document.getElementById('avatarBtn').addEventListener('click', () => switchTab('profile'));
+
+  document.getElementById('sectorQuickFilter').addEventListener('change', renderTenders);
+  document.getElementById('priorityFilter').addEventListener('change', renderTenders);
+  document.getElementById('runSearchBtn').addEventListener('click', runSearch);
+  document.getElementById('searchInput').addEventListener('keydown', (e) => { if (e.key === 'Enter') runSearch(); });
+
+  document.getElementById('editSectorsBtn').addEventListener('click', openSectorModal);
+  document.getElementById('editSectorsBtn2').addEventListener('click', openSectorModal);
+  document.getElementById('closeSectorModal').addEventListener('click', () => document.getElementById('sectorModal').classList.remove('show'));
+  document.getElementById('saveSectorsBtn').addEventListener('click', saveSectors);
+  document.getElementById('sectorGrid').addEventListener('click', (e) => {
+    const slug = e.target.closest('[data-toggle-sector]')?.dataset.toggleSector;
+    if (slug) toggleSectorChoice(slug);
+  });
+
+  document.getElementById('tenderList').addEventListener('click', (e) => {
+    const openId = e.target.closest('[data-open-detail]')?.dataset.openDetail;
+    const saveId = e.target.closest('[data-toggle-save]')?.dataset.toggleSave;
+    if (saveId) { toggleSave(saveId); return; }
+    if (openId) openTenderDetail(openId);
+  });
+  document.getElementById('savedList').addEventListener('click', (e) => {
+    const saveId = e.target.closest('[data-toggle-save]')?.dataset.toggleSave;
+    if (saveId) toggleSave(saveId);
+  });
+  document.getElementById('closeTenderDetail').addEventListener('click', () => document.getElementById('tenderDetailModal').classList.remove('show'));
+
+  document.getElementById('upgradeBtn').addEventListener('click', openUpgradeModal);
+  document.getElementById('ctaUpgradeBtn').addEventListener('click', openUpgradeModal);
+  document.getElementById('gateUpgradeBtn').addEventListener('click', openUpgradeModal);
+  document.getElementById('closeUpgradeModal').addEventListener('click', () => document.getElementById('upgradeModal').classList.remove('show'));
+  document.getElementById('pkgGrid').addEventListener('click', (e) => {
+    const key = e.target.closest('[data-pkg]')?.dataset.pkg;
+    if (key) { chosenPkg = planLimitsByKey[key]; markSelectedPkg(); }
+  });
+  document.getElementById('goToPaymentBtn').addEventListener('click', goToPayment);
+  document.getElementById('payWallet').addEventListener('click', () => { document.getElementById('payWallet').classList.add('selected'); document.getElementById('payStripe').classList.remove('selected'); });
+  document.getElementById('payStripe').addEventListener('click', () => showToast('Stripe قريبًا — استخدم المحفظة اليمنية حاليًا', true));
+  document.getElementById('goFromPaymentBtn').addEventListener('click', () => {
+    if (!document.getElementById('payWallet').classList.contains('selected')) { showToast('اختر طريقة الدفع أولًا', true); return; }
+    goToWallet();
+  });
+  document.getElementById('walletList').addEventListener('click', (e) => {
+    const w = e.target.closest('[data-wallet]')?.dataset.wallet;
+    if (w) selectWallet(w);
+  });
+  document.getElementById('walletContinueBtn').addEventListener('click', goToTransfer);
+  document.getElementById('fileDrop').addEventListener('click', () => document.getElementById('receiptFile').click());
+  document.getElementById('submitRequestBtn').addEventListener('click', submitUpgradeRequest);
+  document.getElementById('openMailBtn').addEventListener('click', openMailClient);
+  document.getElementById('doneUpgradeBtn').addEventListener('click', () => document.getElementById('upgradeModal').classList.remove('show'));
+
+  document.getElementById('cancelBtn').addEventListener('click', () => document.getElementById('cancelModal').classList.add('show'));
+  document.getElementById('closeCancelModal').addEventListener('click', () => document.getElementById('cancelModal').classList.remove('show'));
+  document.getElementById('confirmCancelBtn').addEventListener('click', cancelSubscription);
+
+  document.getElementById('notifWeekly').addEventListener('change', (e) => toggleNotify(e.target.checked));
+
+  document.getElementById('signOutBtn').addEventListener('click', async () => { await signOut(); window.location.href = '../'; });
+}
+
+function switchTab(tab) {
+  document.getElementById('navTenders').classList.toggle('active', tab === 'tenders');
+  document.getElementById('navProfile').classList.toggle('active', tab === 'profile');
+  document.getElementById('tab-tenders').style.display = tab === 'tenders' ? 'block' : 'none';
+  document.getElementById('tab-profile').style.display = tab === 'profile' ? 'block' : 'none';
+}
+
+// ================= TOAST =================
+let toastTimer;
+function showToast(msg, isError) {
+  const toast = document.getElementById('toast');
+  document.getElementById('toastMsg').textContent = msg;
+  toast.classList.toggle('error', !!isError);
+  toast.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => toast.classList.remove('show'), 3000);
+}
+
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('../sw.js').catch(() => {});
 }
 </script>
 </body>
