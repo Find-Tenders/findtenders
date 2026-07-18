@@ -1,7 +1,7 @@
 {
   "name": "FindTenders — رصد المناقصات في اليمن",
   "short_name": "FindTenders",
-  "description": "منصة يمنية لرصد مناقصات ومشاريع اليمن تلقائيًا من 20 مصدرًا.",
+  "description": "منصة يمنية لرصد مناقصات ومشاريع اليمن تلقائيًا من حتى 20 مصدرًا.",
   "start_url": "/",
   "scope": "/",
   "display": "standalone",
