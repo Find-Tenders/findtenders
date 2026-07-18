@@ -14,7 +14,7 @@ import { firecrawlScrape } from '../lib/firecrawl.mjs';
 const URL = 'https://www.ungm.org/Public/Notice';
 const YEMEN_COUNTRY_ID = '2518';
 
-async function fetchNotices() {
+async function fetchNoticesOnce() {
   const data = await firecrawlScrape({
     url: URL,
     formats: ['html'],
@@ -24,14 +24,14 @@ async function fetchNotices() {
       // silently no-opped, which then inserted unfiltered global results
       // (verified via the resulting bad data: Congo/Pakistan/Afghanistan/
       // etc, not Yemen). This wait plus the sanity checks below are the fix.
-      { type: 'wait', milliseconds: 1500 },
+      { type: 'wait', milliseconds: 2000 },
       {
         type: 'executeJavascript',
         script: `$('#selNoticeCountry').val('${YEMEN_COUNTRY_ID}').trigger('change'); $('#isCountrySelected').val('true');`,
       },
-      { type: 'wait', milliseconds: 1200 },
+      { type: 'wait', milliseconds: 1500 },
       { type: 'click', selector: '#lnkSearch' },
-      { type: 'wait', milliseconds: 3500 },
+      { type: 'wait', milliseconds: 4000 },
     ],
   });
 
@@ -52,7 +52,7 @@ async function fetchNotices() {
   // Never trust the site's own filter alone (same lesson as World Bank
   // and IsDB) — a run can silently return the unfiltered global listing
   // if the country selection didn't take. If most rows aren't Yemen,
-  // treat the whole batch as untrustworthy rather than insert it.
+  // treat this attempt as untrustworthy rather than insert it.
   const nonYemenCount = notices.filter((n) => n.country !== 'Yemen').length;
   if (notices.length > 0 && nonYemenCount / notices.length > 0.5) {
     throw new Error(
@@ -61,6 +61,22 @@ async function fetchNotices() {
   }
 
   return notices.filter((n) => n.country === 'Yemen');
+}
+
+// The country-selection race is intermittent, not deterministic (it works
+// most of the time in testing) — so a fresh attempt is likely to succeed
+// even when a previous one didn't. Retry a few times before giving up.
+async function fetchNotices(maxAttempts = 3) {
+  let lastError;
+  for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+    try {
+      return await fetchNoticesOnce();
+    } catch (err) {
+      lastError = err;
+      console.warn(`UNGM: attempt ${attempt}/${maxAttempts} failed — ${err.message}`);
+    }
+  }
+  throw lastError;
 }
 
 async function main() {
