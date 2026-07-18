@@ -400,7 +400,7 @@
 
 <script type="module">
 import { supabase } from '../assets/js/supabaseClient.js';
-import { requireSession, getMyProfile, signOut } from '../assets/js/auth.js';
+import { requireSession, getMyProfile, signOut, blockIfSuspended } from '../assets/js/auth.js';
 
 // Placeholder wallet transfer details — replace with your real account info.
 const TRANSFER_ACCOUNT_NAME = 'FindTenders Yemen';
@@ -427,11 +427,14 @@ session = await requireSession('../');
 if (session) {
   try {
     await loadEverything();
-    document.getElementById('loadingScreen').style.display = 'none';
-    document.getElementById('appRoot').style.display = 'block';
-    wireEvents();
-    if (!profile.selected_sectors || profile.selected_sectors.length === 0) {
-      openSectorModal();
+    const suspended = await blockIfSuspended(profile, '../');
+    if (!suspended) {
+      document.getElementById('loadingScreen').style.display = 'none';
+      document.getElementById('appRoot').style.display = 'block';
+      wireEvents();
+      if (!profile.selected_sectors || profile.selected_sectors.length === 0) {
+        openSectorModal();
+      }
     }
   } catch (err) {
     document.getElementById('loadingScreen').textContent = 'حدث خطأ أثناء التحميل: ' + err.message;

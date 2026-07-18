@@ -36,12 +36,15 @@ export async function getCurrentUser() {
   return session?.user ?? null;
 }
 
-// Fetches (and if missing, waits briefly for) the profile row created by
-// the on_auth_user_created trigger.
+// Fetches the caller's own profile row. Must filter by id explicitly —
+// admins can see every profile under RLS, so relying on RLS alone to
+// narrow to "just mine" breaks .single() for admin accounts.
 export async function getMyProfile() {
+  const { data: { user } } = await supabase.auth.getUser();
   const { data, error } = await supabase
     .from('profiles')
     .select('*')
+    .eq('id', user.id)
     .single();
   if (error) throw error;
   return data;
@@ -56,4 +59,15 @@ export async function requireSession(redirectTo = '/') {
     return null;
   }
   return session;
+}
+
+// Signs out and redirects if the account has been suspended by an admin.
+// Call after fetching the profile, before showing any app content.
+export async function blockIfSuspended(profile, redirectTo = '/') {
+  if (profile.account_status === 'suspended') {
+    await signOut();
+    window.location.href = redirectTo + (redirectTo.includes('?') ? '&' : '?') + 'suspended=1';
+    return true;
+  }
+  return false;
 }

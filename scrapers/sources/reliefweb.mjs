@@ -43,6 +43,11 @@ async function main() {
     cronSchedule: '0 5 * * *',
   });
 
+  if (!source.enabled) {
+    console.log('ReliefWeb: source disabled in admin portal, skipping.');
+    return;
+  }
+
   try {
     const reports = await fetchReports();
 

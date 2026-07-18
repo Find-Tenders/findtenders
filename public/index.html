@@ -425,6 +425,10 @@ supabase.auth.getSession().then(({ data: { session } }) => {
   if (session) window.location.href = 'app/';
 });
 
+if (new URLSearchParams(location.search).get('suspended') === '1') {
+  setTimeout(() => showToast('تم تعطيل هذا الحساب — تواصل معنا إذا كان هذا خطأً', true), 300);
+}
+
 // ---------------- MOBILE MENU ----------------
 const mobileMenu = document.getElementById('mobileMenu');
 document.getElementById('hamburgerBtn').addEventListener('click', () => mobileMenu.classList.toggle('show'));

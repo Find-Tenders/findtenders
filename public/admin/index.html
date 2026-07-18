@@ -1,0 +1,608 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FindTenders — لوحة الإدارة</title>
+<meta name="theme-color" content="#0F1118">
+<link rel="manifest" href="admin-manifest.json">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700;900&family=Readex+Pro:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --deep-space:#0F1118; --dark-navy:#1C1C2E; --slate:#2A2A42; --muted:#64748B;
+    --teal:#2DD4BF; --teal-dark:#0D9488; --red:#F87171; --red-dark:#DC2626;
+    --gold:#F5C842; --gold-dark:#D4A017; --success:#16A34A; --text:#F1F2F6;
+  }
+  *{box-sizing:border-box;}
+  body{margin:0;background:var(--deep-space);color:var(--text);font-family:'Readex Pro',sans-serif;min-height:100vh;}
+  header{background:var(--dark-navy);border-bottom:1px solid var(--slate);padding:16px 24px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:10;flex-wrap:wrap;gap:12px;}
+  .logo{display:flex;align-items:center;gap:10px;}
+  .logo-icon{width:36px;height:36px;border-radius:10px;background:linear-gradient(135deg,var(--teal),var(--teal-dark));display:flex;align-items:center;justify-content:center;font-size:18px;}
+  .logo-text{font-family:'Space Grotesk',sans-serif;font-weight:900;font-size:20px;letter-spacing:-.3px;}
+  .logo-text span{color:var(--teal);}
+  .logo-sub{font-size:9px;color:var(--muted);letter-spacing:1.5px;font-family:'Space Grotesk',sans-serif;font-weight:500;}
+  .admin-tag{background:rgba(248,113,113,.15);color:var(--red);font-size:10px;font-weight:700;padding:4px 10px;border-radius:6px;font-family:'Space Grotesk';}
+  nav{display:flex;gap:6px;background:var(--slate);border-radius:10px;padding:4px;flex-wrap:wrap;}
+  nav button{background:none;border:none;color:var(--muted);font-family:'Readex Pro';font-size:13px;font-weight:600;padding:8px 16px;border-radius:8px;cursor:pointer;transition:.15s;}
+  nav button.active{background:var(--teal-dark);color:#fff;}
+  main{max-width:1120px;margin:0 auto;padding:28px 20px 80px;}
+  .section-note{background:var(--slate);border-radius:10px;padding:10px 16px;font-size:12px;color:var(--muted);margin-bottom:18px;}
+
+  .stats-row{display:flex;gap:12px;margin-bottom:22px;flex-wrap:wrap;}
+  .stat-card{background:var(--dark-navy);border:1px solid var(--slate);border-radius:12px;padding:14px 18px;flex:1;min-width:130px;}
+  .stat-card .num{font-family:'Space Grotesk';font-weight:700;font-size:24px;color:var(--teal);}
+  .stat-card .label{font-size:12px;color:var(--muted);margin-top:2px;}
+
+  .admin-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;flex-wrap:wrap;gap:10px;}
+  .admin-header h2{margin:0;font-size:19px;}
+  .admin-header p{margin:2px 0 0;color:var(--muted);font-size:13px;}
+
+  table{width:100%;border-collapse:collapse;background:var(--dark-navy);border:1px solid var(--slate);border-radius:14px;overflow:hidden;}
+  thead th{text-align:right;padding:12px 16px;font-size:12px;color:var(--muted);font-weight:600;border-bottom:1px solid var(--slate);}
+  tbody td{padding:14px 16px;font-size:13px;border-bottom:1px solid var(--slate);vertical-align:middle;}
+  tbody tr:last-child td{border-bottom:none;}
+  tbody tr:hover{background:rgba(255,255,255,.02);}
+  .status-badge{padding:4px 10px;border-radius:7px;font-size:11px;font-weight:600;white-space:nowrap;}
+  .status-pending{background:rgba(217,119,6,.18);color:#F5A857;}
+  .status-active{background:rgba(22,163,74,.18);color:#4ADE80;}
+  .status-rejected{background:rgba(220,38,38,.18);color:var(--red);}
+  .status-suspended{background:rgba(100,116,139,.25);color:var(--muted);}
+  .status-error{background:rgba(220,38,38,.18);color:var(--red);}
+  .status-paused{background:rgba(217,119,6,.18);color:#F5A857;}
+  .receipt-link{color:var(--teal);text-decoration:underline;cursor:pointer;font-size:12px;background:none;border:none;font-family:'Readex Pro';padding:0;}
+  .row-actions{display:flex;gap:6px;flex-wrap:wrap;}
+  .row-actions button{padding:6px 12px;font-size:12px;border-radius:7px;}
+  .pkg-select{background:var(--slate);border:1px solid var(--muted);color:var(--text);padding:6px 10px;border-radius:7px;font-family:'Readex Pro';font-size:12px;cursor:pointer;}
+  .btn{border:none;border-radius:10px;padding:11px 20px;font-family:'Readex Pro';font-weight:600;font-size:13px;cursor:pointer;transition:.15s;}
+  .btn-teal{background:var(--teal-dark);color:#fff;} .btn-teal:hover{background:var(--teal);}
+  .btn-ghost{background:var(--slate);color:var(--text);} .btn-ghost:hover{background:#37374f;}
+  .btn-red{background:var(--red-dark);color:#fff;} .btn-red:hover{background:var(--red);}
+  .btn-gold{background:linear-gradient(135deg,var(--gold),var(--gold-dark));color:#1C1C2E;}
+  .btn:disabled{opacity:.5;cursor:not-allowed;}
+  .btn-sm{padding:7px 14px;font-size:12px;}
+  .btn-block{width:100%;}
+
+  .switch{position:relative;width:40px;height:22px;flex-shrink:0;display:inline-block;}
+  .switch input{opacity:0;width:0;height:0;}
+  .slider{position:absolute;cursor:pointer;inset:0;background:var(--slate);border-radius:24px;transition:.2s;}
+  .slider::before{content:'';position:absolute;height:16px;width:16px;right:3px;bottom:3px;background:#fff;border-radius:50%;transition:.2s;}
+  input:checked + .slider{background:var(--teal-dark);}
+  input:checked + .slider::before{transform:translateX(-18px);}
+
+  .user-cell{display:flex;flex-direction:column;}
+  .user-cell b{font-size:13px;}
+  .user-cell span{color:var(--muted);font-size:11px;}
+
+  .site-name{display:flex;align-items:center;gap:8px;font-weight:600;}
+  .site-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
+  .dot-active{background:var(--success);box-shadow:0 0 0 3px rgba(22,163,74,.2);}
+  .dot-error{background:var(--red);box-shadow:0 0 0 3px rgba(220,38,38,.2);}
+  .dot-paused{background:#F5A857;box-shadow:0 0 0 3px rgba(217,119,6,.2);}
+  .dot-off{background:var(--muted);}
+
+  .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.6);display:none;align-items:center;justify-content:center;z-index:100;padding:20px;}
+  .modal-overlay.show{display:flex;}
+  .modal{background:var(--dark-navy);border:1px solid var(--slate);border-radius:14px;padding:24px;max-width:420px;width:100%;max-height:90vh;overflow-y:auto;}
+  .modal h3{margin:0 0 8px;font-size:16px;}
+  .modal p{color:var(--muted);font-size:13px;margin:0 0 20px;line-height:1.6;}
+  .modal-actions{display:flex;gap:8px;justify-content:flex-start;}
+  .field{margin-bottom:14px;text-align:right;}
+  .field label{font-size:12px;color:var(--muted);display:block;margin-bottom:5px;}
+  .field input,.field select,.field textarea{width:100%;background:var(--deep-space);border:1px solid var(--slate);color:var(--text);padding:9px 12px;border-radius:8px;font-family:'Readex Pro';font-size:13px;}
+  .form-error{font-size:12px;color:var(--red);margin-top:-6px;margin-bottom:12px;}
+
+  .toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--dark-navy);border:1px solid var(--success);color:#fff;padding:12px 22px;border-radius:10px;font-size:13px;opacity:0;transition:.25s;pointer-events:none;display:flex;align-items:center;gap:8px;z-index:150;}
+  .toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+  .toast.error{border-color:var(--red);}
+
+  @media(max-width:700px){
+    table{font-size:12px;}
+    thead{display:none;}
+    tbody tr{display:block;border-bottom:1px solid var(--slate);padding:10px 0;}
+    tbody td{display:flex;justify-content:space-between;align-items:center;border:none;padding:6px 16px;gap:10px;}
+    tbody td::before{content:attr(data-label);color:var(--muted);font-size:11px;flex-shrink:0;}
+  }
+</style>
+</head>
+<body>
+
+<!-- ================= ADMIN LOGIN GATE ================= -->
+<div class="modal-overlay show" id="adminGate" style="background:var(--deep-space);">
+  <div class="modal" style="max-width:380px;">
+    <div style="text-align:center;margin-bottom:20px;">
+      <div class="logo-icon" style="margin:0 auto 12px;">🔍</div>
+      <div class="logo-text">find<span>TENDERS</span></div>
+      <div style="font-size:11px;color:var(--red);font-weight:700;margin-top:6px;">دخول مخصص للإدارة فقط</div>
+    </div>
+    <div class="field"><label>البريد الإلكتروني</label><input type="email" id="adminEmail" placeholder="admin@findtenders.net"></div>
+    <div class="field"><label>كلمة المرور</label><input type="password" id="adminPassword" placeholder="••••••••"></div>
+    <div class="form-error" id="loginError"></div>
+    <button class="btn btn-teal btn-block" id="adminLoginBtn">تسجيل الدخول</button>
+    <div style="font-size:11px;color:var(--muted);text-align:center;margin-top:14px;">حسابات الإدارة تُنشأ يدويًا فقط — لا يوجد تسجيل عام</div>
+  </div>
+</div>
+
+<div id="adminApp" style="display:none;">
+<header>
+  <div class="logo">
+    <div class="logo-icon">🔍</div>
+    <div><div class="logo-text">find<span>TENDERS</span></div><div class="logo-sub">AI-POWERED · YEMEN</div></div>
+  </div>
+  <span class="admin-tag">لوحة الإدارة</span>
+  <nav>
+    <button class="active" data-tab="subs">💳 الاشتراكات</button>
+    <button data-tab="users">👥 المستخدمون</button>
+    <button data-tab="sites">🌐 حالة المصادر</button>
+    <button data-tab="tenders">📋 المناقصات</button>
+  </nav>
+  <button class="btn btn-ghost btn-sm" id="adminLogoutBtn">🚪 خروج</button>
+</header>
+
+<main>
+<div class="stats-row">
+  <div class="stat-card"><div class="num" id="statPending">0</div><div class="label">طلبات معلّقة</div></div>
+  <div class="stat-card"><div class="num" id="statActive">0</div><div class="label">اشتراكات نشطة</div></div>
+  <div class="stat-card"><div class="num" id="statUsers">0</div><div class="label">إجمالي المستخدمين</div></div>
+  <div class="stat-card"><div class="num" id="statSitesUp">0/0</div><div class="label">مصادر تعمل بنجاح</div></div>
+</div>
+
+<!-- ================= SUBSCRIPTIONS TAB ================= -->
+<div id="tab-subs">
+  <div class="admin-header">
+    <div><h2>طلبات الاشتراك</h2><p>راجع إيصال التحويل، فعّل أو ألغِ الاشتراك يدويًا</p></div>
+  </div>
+  <table>
+    <thead><tr><th>المستخدم</th><th>الخطة المطلوبة</th><th>طريقة الدفع</th><th>الإيصال</th><th>الحالة</th><th>إجراء</th></tr></thead>
+    <tbody id="subsBody"></tbody>
+  </table>
+</div>
+
+<!-- ================= USERS TAB ================= -->
+<div id="tab-users" style="display:none;">
+  <div class="admin-header">
+    <div><h2>المستخدمون</h2><p>فعّل أو عطّل أي حساب، واطّلع على خطته</p></div>
+  </div>
+  <table>
+    <thead><tr><th>المستخدم</th><th>الخطة</th><th>تاريخ الانضمام</th><th>الحالة</th><th>إجراء</th></tr></thead>
+    <tbody id="usersBody"></tbody>
+  </table>
+</div>
+
+<!-- ================= SITES TAB ================= -->
+<div id="tab-sites" style="display:none;">
+  <div class="admin-header">
+    <div><h2>حالة المصادر (الكشط)</h2><p>فعّل أو عطّل مصدرًا، أو راقب حالته الأخيرة</p></div>
+  </div>
+  <div class="section-note">📋 زر "فحص الآن" غير مفعّل بعد — يتطلب ربطًا إضافيًا مع GitHub Actions (خطوة قادمة). حاليًا يتم الفحص تلقائيًا حسب جدول كل مصدر.</div>
+  <table>
+    <thead><tr><th>الموقع</th><th>الفئة</th><th>معدّل الفحص</th><th>آخر فحص</th><th>آخر نتيجة</th><th>مفعّل</th><th>إجراء</th></tr></thead>
+    <tbody id="sitesBody"></tbody>
+  </table>
+</div>
+
+<!-- ================= TENDERS TAB ================= -->
+<div id="tab-tenders" style="display:none;">
+  <div class="admin-header">
+    <div><h2>إدارة المناقصات</h2><p>أضف مناقصة يدويًا، أو عدّل/احذف مناقصة موجودة</p></div>
+    <button class="btn btn-gold" id="addTenderBtn">+ إضافة مناقصة</button>
+  </div>
+  <table>
+    <thead><tr><th>عنوان المناقصة</th><th>الجهة</th><th>القطاع</th><th>الموعد النهائي</th><th>المصدر</th><th>إجراء</th></tr></thead>
+    <tbody id="tendersBody"></tbody>
+  </table>
+</div>
+</main>
+
+<!-- Confirm modal -->
+<div class="modal-overlay" id="modalOverlay">
+  <div class="modal">
+    <h3 id="modalTitle">تأكيد الإجراء</h3>
+    <p id="modalText"></p>
+    <div class="modal-actions">
+      <button class="btn btn-red" id="modalConfirmBtn">تأكيد</button>
+      <button class="btn btn-ghost" id="modalCancelBtn">إلغاء</button>
+    </div>
+  </div>
+</div>
+
+<!-- Tender form modal -->
+<div class="modal-overlay" id="tenderFormOverlay">
+  <div class="modal">
+    <h3 id="tenderFormTitle">إضافة مناقصة جديدة</h3>
+    <div class="field"><label>عنوان المناقصة</label><input id="f-title" type="text" placeholder="مثال: توريد معدات طبية..."></div>
+    <div class="field"><label>الجهة (اختياري)</label><input id="f-org" type="text" placeholder="مثال: UNDP"></div>
+    <div class="field"><label>القطاع</label><select id="f-sector"></select></div>
+    <div class="field"><label>الموعد النهائي</label><input id="f-deadline" type="date"></div>
+    <div class="field"><label>الرابط (يوجّه المستخدم للمناقصة الأصلية)</label><input id="f-link" type="text" placeholder="https://..."></div>
+    <div class="field"><label>الوصف</label><textarea id="f-description" rows="3" placeholder="وصف مختصر..."></textarea></div>
+    <div class="form-error" id="tenderFormError"></div>
+    <div class="modal-actions">
+      <button class="btn btn-teal" id="saveTenderBtn">حفظ</button>
+      <button class="btn btn-ghost" id="closeTenderFormBtn">إلغاء</button>
+    </div>
+  </div>
+</div>
+
+</div><!-- /adminApp -->
+
+<div class="toast" id="toast">✅ <span id="toastMsg"></span></div>
+
+<script type="module">
+import { supabase } from '../assets/js/supabaseClient.js';
+
+const PLAN_LABELS = { free: 'مجانية', basic: 'الأساسية', professional: 'الاحترافية', comprehensive: 'الشاملة' };
+let sectorsList = [];
+let sectorLabelBySlug = {};
+let editingTenderId = null;
+
+// ================= LOGIN GATE =================
+document.getElementById('adminLoginBtn').addEventListener('click', doLogin);
+document.getElementById('adminPassword').addEventListener('keydown', (e) => { if (e.key === 'Enter') doLogin(); });
+
+async function doLogin() {
+  const email = document.getElementById('adminEmail').value.trim();
+  const password = document.getElementById('adminPassword').value;
+  const errEl = document.getElementById('loginError');
+  errEl.textContent = '';
+  if (!email || !password) { errEl.textContent = 'أدخل البريد وكلمة المرور'; return; }
+
+  const btn = document.getElementById('adminLoginBtn');
+  btn.disabled = true; btn.textContent = 'جارٍ الدخول...';
+  try {
+    const { data: signInData, error: signInErr } = await supabase.auth.signInWithPassword({ email, password });
+    if (signInErr) throw signInErr;
+
+    const { data: profile, error: profErr } = await supabase.from('profiles').select('*').eq('id', signInData.user.id).single();
+    if (profErr) throw profErr;
+    if (profile.role !== 'admin') {
+      await supabase.auth.signOut();
+      errEl.textContent = 'هذا الحساب غير مخوّل بالدخول إلى لوحة الإدارة';
+      return;
+    }
+    if (profile.account_status === 'suspended') {
+      await supabase.auth.signOut();
+      errEl.textContent = 'تم تعطيل هذا الحساب';
+      return;
+    }
+
+    document.getElementById('adminGate').classList.remove('show');
+    document.getElementById('adminApp').style.display = 'block';
+    await loadAll();
+  } catch (err) {
+    errEl.textContent = 'بيانات الدخول غير صحيحة';
+    console.error(err);
+  } finally {
+    btn.disabled = false; btn.textContent = 'تسجيل الدخول';
+  }
+}
+
+document.getElementById('adminLogoutBtn').addEventListener('click', async () => {
+  await supabase.auth.signOut();
+  window.location.reload();
+});
+
+// Already-logged-in admin refreshing the page skips straight past the gate.
+(async () => {
+  const { data: { session } } = await supabase.auth.getSession();
+  if (session) {
+    const { data: profile } = await supabase.from('profiles').select('role, account_status').eq('id', session.user.id).single();
+    if (profile?.role === 'admin' && profile.account_status !== 'suspended') {
+      document.getElementById('adminGate').classList.remove('show');
+      document.getElementById('adminApp').style.display = 'block';
+      await loadAll();
+    } else if (profile?.account_status === 'suspended') {
+      await supabase.auth.signOut();
+    }
+  }
+})();
+
+// ================= TABS =================
+document.querySelectorAll('nav button[data-tab]').forEach((btn) => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('nav button[data-tab]').forEach((b) => b.classList.remove('active'));
+    btn.classList.add('active');
+    ['subs', 'users', 'sites', 'tenders'].forEach((t) => {
+      document.getElementById('tab-' + t).style.display = t === btn.dataset.tab ? 'block' : 'none';
+    });
+  });
+});
+
+async function loadAll() {
+  const { data: sectors } = await supabase.from('sectors').select('*').order('sort_order');
+  sectorsList = sectors || [];
+  sectorLabelBySlug = Object.fromEntries(sectorsList.map((s) => [s.slug, s.label_ar]));
+  document.getElementById('f-sector').innerHTML = sectorsList.map((s) => `<option value="${s.slug}">${s.label_ar}</option>`).join('');
+
+  await Promise.all([renderSubs(), renderUsers(), renderSites(), renderTenders()]);
+}
+
+// ================= SUBSCRIPTIONS =================
+const subStatusMap = { pending: ['معلّق', 'status-pending'], active: ['نشط', 'status-active'], rejected: ['مرفوض', 'status-rejected'] };
+
+async function renderSubs() {
+  const { data, error } = await supabase
+    .from('subscription_requests')
+    .select('*, profiles!user_id(full_name, email)')
+    .order('created_at', { ascending: false });
+  if (error) { showToast(error.message, true); return; }
+
+  document.getElementById('statPending').textContent = data.filter((s) => s.status === 'pending').length;
+  document.getElementById('statActive').textContent = data.filter((s) => s.status === 'active').length;
+
+  const paidPlanOptions = ['basic', 'professional', 'comprehensive'];
+  document.getElementById('subsBody').innerHTML = data.map((s) => {
+    const [label, cls] = subStatusMap[s.status];
+    const userName = s.profiles?.full_name || '—';
+    const userEmail = s.profiles?.email || '—';
+    let actions = '';
+    if (s.status === 'pending') {
+      actions = `<div class="row-actions">
+        <select class="pkg-select" data-pkg-select="${s.id}">
+          ${paidPlanOptions.map((p) => `<option value="${p}" ${s.requested_plan === p ? 'selected' : ''}>${PLAN_LABELS[p]}</option>`).join('')}
+        </select>
+        <button class="btn btn-teal" data-activate="${s.id}">تفعيل</button>
+        <button class="btn btn-red" data-reject="${s.id}">رفض</button>
+      </div>`;
+    } else if (s.status === 'active') {
+      actions = `<div class="row-actions">
+        <span class="status-badge status-active">${PLAN_LABELS[s.activated_plan] || ''}</span>
+        <button class="btn btn-ghost" data-deactivate="${s.user_id}" data-name="${escapeAttr(userName)}">إلغاء التفعيل</button>
+      </div>`;
+    } else {
+      actions = `<div class="row-actions"><button class="btn btn-teal" data-reopen="${s.id}">إعادة فتح الطلب</button></div>`;
+    }
+    return `<tr>
+      <td data-label="المستخدم"><div class="user-cell"><b>${escapeHtml(userName)}</b><span>${escapeHtml(userEmail)}</span></div></td>
+      <td data-label="الخطة">${PLAN_LABELS[s.requested_plan]} — $${s.amount}</td>
+      <td data-label="طريقة الدفع">${s.payment_method === 'wallet' ? (s.wallet_name || 'محفظة') : 'Stripe'}</td>
+      <td data-label="الإيصال">${s.receipt_path ? `<button class="receipt-link" data-view-receipt="${s.receipt_path}">عرض الإيصال</button>` : '—'}</td>
+      <td data-label="الحالة"><span class="status-badge ${cls}">${label}</span></td>
+      <td data-label="إجراء">${actions}</td>
+    </tr>`;
+  }).join('') || `<tr><td colspan="6" style="text-align:center;color:var(--muted);padding:24px;">لا توجد طلبات اشتراك بعد</td></tr>`;
+}
+
+document.getElementById('subsBody').addEventListener('click', async (e) => {
+  const t = e.target;
+  if (t.dataset.activate) {
+    const select = document.querySelector(`[data-pkg-select="${t.dataset.activate}"]`);
+    const { data, error } = await supabase.rpc('admin_activate_subscription', { request_id: t.dataset.activate, chosen_plan: select.value });
+    if (error || !data.ok) { showToast(error?.message || 'تعذّر التفعيل', true); return; }
+    showToast('تم تفعيل الاشتراك');
+    await renderSubs(); await renderUsers();
+  }
+  if (t.dataset.reject) {
+    const { data, error } = await supabase.rpc('admin_reject_subscription', { request_id: t.dataset.reject });
+    if (error || !data.ok) { showToast(error?.message || 'تعذّر الرفض', true); return; }
+    showToast('تم رفض الطلب');
+    await renderSubs();
+  }
+  if (t.dataset.reopen) {
+    const { error } = await supabase.from('subscription_requests').update({ status: 'pending' }).eq('id', t.dataset.reopen);
+    if (error) { showToast(error.message, true); return; }
+    showToast('تمت إعادة فتح الطلب');
+    await renderSubs();
+  }
+  if (t.dataset.deactivate) {
+    confirmAction('إلغاء تفعيل الاشتراك؟', `سيعود ${t.dataset.name} إلى الباقة المجانية فورًا.`, async () => {
+      const { data, error } = await supabase.rpc('admin_deactivate_user_plan', { target_user: t.dataset.deactivate });
+      if (error || !data.ok) { showToast(error?.message || 'تعذّر الإلغاء', true); return; }
+      showToast('تم إلغاء التفعيل');
+      await renderSubs(); await renderUsers();
+    });
+  }
+  if (t.dataset.viewReceipt) {
+    const { data, error } = await supabase.storage.from('receipts').createSignedUrl(t.dataset.viewReceipt, 120);
+    if (error) { showToast(error.message, true); return; }
+    window.open(data.signedUrl, '_blank', 'noopener');
+  }
+});
+
+// ================= USERS =================
+const userStatusMap = { active: ['نشط', 'status-active'], suspended: ['معطّل', 'status-suspended'] };
+async function renderUsers() {
+  const { data, error } = await supabase.from('profiles').select('*').order('created_at', { ascending: false });
+  if (error) { showToast(error.message, true); return; }
+  document.getElementById('statUsers').textContent = data.length;
+
+  document.getElementById('usersBody').innerHTML = data.map((u) => {
+    const [label, cls] = userStatusMap[u.account_status];
+    const joinDate = new Date(u.created_at).toLocaleDateString('ar-EG', { year: 'numeric', month: 'short', day: 'numeric' });
+    const actionBtn = u.account_status === 'active'
+      ? `<button class="btn btn-red" data-suspend="${u.id}" data-name="${escapeAttr(u.full_name || u.email)}">تعطيل</button>`
+      : `<button class="btn btn-teal" data-activate-user="${u.id}">تفعيل</button>`;
+    return `<tr>
+      <td data-label="المستخدم"><div class="user-cell"><b>${escapeHtml(u.full_name || '—')}</b><span>${escapeHtml(u.email || '—')}</span></div></td>
+      <td data-label="الخطة">${PLAN_LABELS[u.plan]}</td>
+      <td data-label="تاريخ الانضمام">${joinDate}</td>
+      <td data-label="الحالة"><span class="status-badge ${cls}">${label}</span></td>
+      <td data-label="إجراء"><div class="row-actions">${actionBtn}</div></td>
+    </tr>`;
+  }).join('') || `<tr><td colspan="5" style="text-align:center;color:var(--muted);padding:24px;">لا يوجد مستخدمون بعد</td></tr>`;
+}
+document.getElementById('usersBody').addEventListener('click', async (e) => {
+  const t = e.target;
+  if (t.dataset.suspend) {
+    confirmAction('تعطيل هذا الحساب؟', `لن يتمكن ${t.dataset.name} من الوصول حتى تُعيد تفعيله.`, async () => {
+      const { data, error } = await supabase.rpc('admin_set_account_status', { target_user: t.dataset.suspend, new_status: 'suspended' });
+      if (error || !data.ok) { showToast(error?.message || 'فشل الإجراء', true); return; }
+      showToast('تم تعطيل الحساب');
+      await renderUsers();
+    });
+  }
+  if (t.dataset.activateUser) {
+    const { data, error } = await supabase.rpc('admin_set_account_status', { target_user: t.dataset.activateUser, new_status: 'active' });
+    if (error || !data.ok) { showToast(error?.message || 'فشل الإجراء', true); return; }
+    showToast('تم تفعيل الحساب');
+    await renderUsers();
+  }
+});
+
+// ================= SITES =================
+const siteStateMap = { active: 'dot-active', error: 'dot-error', paused: 'dot-paused', off: 'dot-off' };
+async function renderSites() {
+  const { data, error } = await supabase.from('sources').select('*').order('name');
+  if (error) { showToast(error.message, true); return; }
+  const up = data.filter((s) => s.enabled && s.state !== 'error').length;
+  document.getElementById('statSitesUp').textContent = `${up}/${data.length}`;
+
+  document.getElementById('sitesBody').innerHTML = data.map((s) => {
+    const dotCls = siteStateMap[s.state] || 'dot-off';
+    const resultCls = s.state === 'error' ? 'status-error' : s.state === 'paused' ? 'status-paused' : s.state === 'active' ? 'status-active' : 'status-suspended';
+    const lastCheck = s.last_check_at ? new Date(s.last_check_at).toLocaleString('ar-EG', { dateStyle: 'medium', timeStyle: 'short' }) : '—';
+    return `<tr>
+      <td data-label="الموقع"><div class="site-name"><span class="site-dot ${dotCls}"></span>${escapeHtml(s.name)}</div></td>
+      <td data-label="الفئة">${escapeHtml(s.category)}</td>
+      <td data-label="معدّل الفحص">${escapeHtml(s.frequency_label)}</td>
+      <td data-label="آخر فحص">${lastCheck}</td>
+      <td data-label="آخر نتيجة"><span class="status-badge ${resultCls}">${escapeHtml(s.last_result || '—')}</span></td>
+      <td data-label="مفعّل"><label class="switch"><input type="checkbox" data-toggle-source="${s.id}" ${s.enabled ? 'checked' : ''}><span class="slider"></span></label></td>
+      <td data-label="إجراء"><div class="row-actions"><button class="btn btn-ghost" data-check-now="${escapeAttr(s.name)}">فحص الآن</button></div></td>
+    </tr>`;
+  }).join('') || `<tr><td colspan="7" style="text-align:center;color:var(--muted);padding:24px;">لم تُشغَّل أي مكشطة بعد</td></tr>`;
+}
+document.getElementById('sitesBody').addEventListener('change', async (e) => {
+  if (e.target.dataset.toggleSource) {
+    const { error } = await supabase.from('sources').update({ enabled: e.target.checked }).eq('id', e.target.dataset.toggleSource);
+    if (error) { showToast(error.message, true); return; }
+    showToast(e.target.checked ? 'تم تفعيل المصدر' : 'تم تعطيل المصدر');
+    await renderSites();
+  }
+});
+document.getElementById('sitesBody').addEventListener('click', (e) => {
+  if (e.target.dataset.checkNow) {
+    showToast(`سيتم إضافة تشغيل فوري لـ ${e.target.dataset.checkNow} لاحقًا — حاليًا الفحص تلقائي حسب الجدول`, true);
+  }
+});
+
+// ================= TENDERS =================
+async function renderTenders() {
+  const { data, error } = await supabase.from('tenders').select('*').order('created_at', { ascending: false });
+  if (error) { showToast(error.message, true); return; }
+
+  document.getElementById('tendersBody').innerHTML = data.map((t) => `<tr>
+    <td data-label="العنوان"><b>${escapeHtml(t.title)}</b></td>
+    <td data-label="الجهة">${escapeHtml(t.org || '—')}</td>
+    <td data-label="القطاع">${sectorLabelBySlug[t.sector] || t.sector || '—'}</td>
+    <td data-label="الموعد النهائي">${t.deadline || '—'}</td>
+    <td data-label="المصدر">${t.source_url ? `<a href="${escapeAttr(t.source_url)}" target="_blank" rel="noopener" class="receipt-link" style="text-decoration:underline;">فتح الرابط</a>` : (t.source_id ? 'آلي' : '—')}</td>
+    <td data-label="إجراء"><div class="row-actions">
+      <button class="btn btn-ghost" data-edit-tender="${t.id}">تعديل</button>
+      <button class="btn btn-red" data-delete-tender="${t.id}" data-title="${escapeAttr(t.title)}">حذف</button>
+    </div></td>
+  </tr>`).join('') || `<tr><td colspan="6" style="text-align:center;color:var(--muted);padding:24px;">لا توجد مناقصات بعد</td></tr>`;
+
+  window.__allTenders = data;
+}
+document.getElementById('tendersBody').addEventListener('click', (e) => {
+  const t = e.target;
+  if (t.dataset.editTender) openTenderForm(t.dataset.editTender);
+  if (t.dataset.deleteTender) {
+    confirmAction('حذف هذه المناقصة؟', 'لن تظهر بعد الآن لدى المستخدمين.', async () => {
+      const { error } = await supabase.from('tenders').delete().eq('id', t.dataset.deleteTender);
+      if (error) { showToast(error.message, true); return; }
+      showToast('تم حذف المناقصة');
+      await renderTenders();
+    });
+  }
+});
+
+document.getElementById('addTenderBtn').addEventListener('click', () => openTenderForm(null));
+document.getElementById('closeTenderFormBtn').addEventListener('click', () => document.getElementById('tenderFormOverlay').classList.remove('show'));
+
+function openTenderForm(id) {
+  editingTenderId = id;
+  const t = id ? (window.__allTenders || []).find((x) => x.id === id) : null;
+  document.getElementById('tenderFormTitle').textContent = id ? 'تعديل مناقصة' : 'إضافة مناقصة جديدة';
+  document.getElementById('f-title').value = t?.title || '';
+  document.getElementById('f-org').value = t?.org || '';
+  document.getElementById('f-sector').value = t?.sector || sectorsList[0]?.slug || '';
+  document.getElementById('f-deadline').value = t?.deadline || '';
+  document.getElementById('f-link').value = t?.source_url || '';
+  document.getElementById('f-description').value = t?.excerpt || '';
+  document.getElementById('tenderFormError').textContent = '';
+  document.getElementById('tenderFormOverlay').classList.add('show');
+}
+
+async function sha256Hex(input) {
+  const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(input));
+  return [...new Uint8Array(buf)].map((b) => b.toString(16).padStart(2, '0')).join('');
+}
+
+document.getElementById('saveTenderBtn').addEventListener('click', async () => {
+  const title = document.getElementById('f-title').value.trim();
+  const errEl = document.getElementById('tenderFormError');
+  errEl.textContent = '';
+  if (!title) { errEl.textContent = 'عنوان المناقصة مطلوب'; return; }
+
+  const org = document.getElementById('f-org').value.trim() || null;
+  const sector = document.getElementById('f-sector').value || null;
+  const deadline = document.getElementById('f-deadline').value || null;
+  const sourceUrl = document.getElementById('f-link').value.trim() || null;
+  const excerpt = document.getElementById('f-description').value.trim() || null;
+  const fingerprint = await sha256Hex(`${sourceUrl || ''}|${title}|${org || ''}|${deadline || ''}|${editingTenderId || crypto.randomUUID()}`);
+
+  const payload = { title, org, sector, deadline, source_url: sourceUrl, excerpt, location_label: 'اليمن' };
+
+  const btn = document.getElementById('saveTenderBtn');
+  btn.disabled = true;
+  try {
+    if (editingTenderId) {
+      const { error } = await supabase.from('tenders').update(payload).eq('id', editingTenderId);
+      if (error) throw error;
+      showToast('تم تعديل المناقصة');
+    } else {
+      const { error } = await supabase.from('tenders').insert({ ...payload, fingerprint });
+      if (error) throw error;
+      showToast('تمت إضافة المناقصة');
+    }
+    document.getElementById('tenderFormOverlay').classList.remove('show');
+    await renderTenders();
+  } catch (err) {
+    errEl.textContent = err.message;
+  } finally {
+    btn.disabled = false;
+  }
+});
+
+// ================= CONFIRM MODAL =================
+let pendingConfirmFn = null;
+function confirmAction(title, text, fn) {
+  document.getElementById('modalTitle').textContent = title;
+  document.getElementById('modalText').textContent = text;
+  pendingConfirmFn = fn;
+  document.getElementById('modalOverlay').classList.add('show');
+}
+document.getElementById('modalCancelBtn').addEventListener('click', () => {
+  document.getElementById('modalOverlay').classList.remove('show');
+  pendingConfirmFn = null;
+});
+document.getElementById('modalConfirmBtn').addEventListener('click', async () => {
+  if (pendingConfirmFn) await pendingConfirmFn();
+  document.getElementById('modalOverlay').classList.remove('show');
+  pendingConfirmFn = null;
+});
+
+// ================= HELPERS =================
+function escapeHtml(s) {
+  return String(s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+}
+function escapeAttr(s) { return escapeHtml(s).replace(/`/g, '&#96;'); }
+
+let toastTimer;
+function showToast(msg, isError) {
+  const toast = document.getElementById('toast');
+  document.getElementById('toastMsg').textContent = msg;
+  toast.classList.toggle('error', !!isError);
+  toast.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => toast.classList.remove('show'), 3000);
+}
+
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => { navigator.serviceWorker.register('admin-sw.js').catch(() => {}); });
+}
+</script>
+</body>
+</html>
