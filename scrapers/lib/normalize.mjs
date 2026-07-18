@@ -26,17 +26,18 @@ const MONTHS = {
   jul: '07', aug: '08', sep: '09', oct: '10', nov: '11', dec: '12',
 };
 
-// Parses UNDP's "31-Jul-26" style dates into "2026-07-31". Returns null
-// if the text doesn't match (rather than throwing) since scrapers should
-// never crash the whole batch over one malformed date.
+// Parses "31-Jul-26" or "22-Jan-2026" style dates (2- or 4-digit year)
+// into "2026-07-31". Returns null if the text doesn't match (rather than
+// throwing) since scrapers should never crash the whole batch over one
+// malformed date.
 export function parseDMonYY(text) {
   if (!text) return null;
-  const match = text.trim().match(/^(\d{1,2})-([A-Za-z]{3})-(\d{2})/);
+  const match = text.trim().match(/^(\d{1,2})-([A-Za-z]{3})-(\d{2,4})/);
   if (!match) return null;
-  const [, day, mon, yy] = match;
+  const [, day, mon, yRaw] = match;
   const month = MONTHS[mon.toLowerCase()];
   if (!month) return null;
-  const year = Number(yy) < 70 ? `20${yy}` : `19${yy}`;
+  const year = yRaw.length === 2 ? (Number(yRaw) < 70 ? `20${yRaw}` : `19${yRaw}`) : yRaw;
   return `${year}-${month}-${day.padStart(2, '0')}`;
 }
 
