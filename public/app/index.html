@@ -352,9 +352,13 @@
       <h2>حوّل المبلغ وأرفق الإيصال</h2>
       <p class="sub">حوّل عبر <b id="transferWalletName"></b> إلى الحساب التالي، ثم أرفق صورة الإيصال</p>
       <div class="transfer-box">
-        <div class="transfer-row"><span>اسم الحساب</span><span class="v" id="transferAccountName"></span></div>
+        <div class="transfer-row"><span>الخدمة</span><span class="v" id="transferServiceName"></span></div>
         <div class="transfer-row"><span>رقم الحساب</span><span class="v"><span id="transferAccountNumber"></span> <button class="copy-btn" id="copyAccountBtn">نسخ</button></span></div>
         <div class="transfer-row"><span>المبلغ المطلوب</span><span class="v" id="transferAmount"></span></div>
+      </div>
+      <div id="transferQrWrap" style="text-align:center;margin:14px 0;display:none;">
+        <img id="transferQrImage" src="" alt="رمز QR للدفع" style="max-width:200px;width:100%;border-radius:12px;border:1px solid var(--slate);">
+        <div style="font-size:11px;color:var(--muted);margin-top:6px;">أو امسح الرمز مباشرة من تطبيق محفظتك</div>
       </div>
       <div class="file-drop" id="fileDrop">
         📎 اضغط لإرفاق صورة الإيصال
@@ -402,10 +406,12 @@
 import { supabase } from '../assets/js/supabaseClient.js';
 import { requireSession, getMyProfile, signOut, blockIfSuspended } from '../assets/js/auth.js';
 
-// Placeholder wallet transfer details — replace with your real account info.
-const TRANSFER_ACCOUNT_NAME = 'FindTenders Yemen';
-const TRANSFER_ACCOUNT_NUMBER = '773 000 4521';
-const WALLETS = ['فلوسك (MTN)', 'جوالي (Yemen Mobile)', 'CashYemen', 'OneCard Yemen'];
+// Real wallet transfer accounts. Add more entries here as you open more
+// wallet accounts — the UI adapts automatically (skips the "choose your
+// wallet" step when there's only one option).
+const WALLETS = [
+  { name: 'حاسب — بنك الكريمي الإسلامي', accountNumber: '2347719', qrImage: '../assets/img/hassab-qr.jpg' },
+];
 const PLAN_LABELS = { free: 'مجانية', basic: 'الأساسية', professional: 'الاحترافية', comprehensive: 'الشاملة' };
 const PRIORITY_LABEL = { high: 'عالية الأولوية', medium: 'متوسطة', normal: 'عادية' };
 const PRIORITY_ICON = { high: '🔴', medium: '🟠', normal: '🟢' };
@@ -731,22 +737,35 @@ function goToPayment() {
   showUpStep('up-step-payment');
 }
 function goToWallet() {
+  if (WALLETS.length === 1) {
+    // Only one wallet configured — skip straight to the transfer step.
+    chosenWallet = WALLETS[0];
+    goToTransfer();
+    return;
+  }
   const wl = document.getElementById('walletList');
-  wl.innerHTML = WALLETS.map((w) => `<div class="wallet-opt" data-wallet="${w}">${w}<span>›</span></div>`).join('');
+  wl.innerHTML = WALLETS.map((w) => `<div class="wallet-opt" data-wallet="${w.name}">${w.name}<span>›</span></div>`).join('');
   document.getElementById('walletContinueBtn').disabled = true;
   chosenWallet = null;
   showUpStep('up-step-wallet');
 }
-function selectWallet(w) {
-  chosenWallet = w;
-  document.querySelectorAll('.wallet-opt').forEach((el) => el.classList.toggle('selected', el.dataset.wallet === w));
+function selectWallet(name) {
+  chosenWallet = WALLETS.find((w) => w.name === name);
+  document.querySelectorAll('.wallet-opt').forEach((el) => el.classList.toggle('selected', el.dataset.wallet === name));
   document.getElementById('walletContinueBtn').disabled = false;
 }
 function goToTransfer() {
-  document.getElementById('transferWalletName').textContent = chosenWallet;
-  document.getElementById('transferAccountName').textContent = TRANSFER_ACCOUNT_NAME;
-  document.getElementById('transferAccountNumber').textContent = TRANSFER_ACCOUNT_NUMBER;
+  document.getElementById('transferWalletName').textContent = chosenWallet.name;
+  document.getElementById('transferServiceName').textContent = chosenWallet.name;
+  document.getElementById('transferAccountNumber').textContent = chosenWallet.accountNumber;
   document.getElementById('transferAmount').textContent = '$' + chosenPkg.monthly_price;
+  const qrWrap = document.getElementById('transferQrWrap');
+  if (chosenWallet.qrImage) {
+    document.getElementById('transferQrImage').src = chosenWallet.qrImage;
+    qrWrap.style.display = 'block';
+  } else {
+    qrWrap.style.display = 'none';
+  }
   receiptFile = null;
   document.getElementById('fileDrop').classList.remove('filled');
   document.getElementById('fileDrop').innerHTML = `📎 اضغط لإرفاق صورة الإيصال<input type="file" id="receiptFile" accept="image/*">`;
@@ -784,7 +803,7 @@ async function submitUpgradeRequest() {
       user_id: session.user.id,
       requested_plan: chosenPkg.plan,
       payment_method: 'wallet',
-      wallet_name: chosenWallet,
+      wallet_name: chosenWallet.name,
       receipt_path: path,
       amount: chosenPkg.monthly_price,
     });
@@ -794,7 +813,7 @@ async function submitUpgradeRequest() {
     document.getElementById('emailPkgName2').textContent = `${PLAN_LABELS[chosenPkg.plan]} ($${chosenPkg.monthly_price}/شهر)`;
     document.getElementById('emailName').textContent = profile.full_name || session.user.email;
     document.getElementById('emailEmail').textContent = session.user.email;
-    document.getElementById('emailWalletName').textContent = chosenWallet;
+    document.getElementById('emailWalletName').textContent = chosenWallet.name;
     document.getElementById('emailAmount').textContent = '$' + chosenPkg.monthly_price;
     showUpStep('up-step-email');
   } catch (err) {
@@ -807,7 +826,7 @@ async function submitUpgradeRequest() {
 function openMailClient() {
   const subject = encodeURIComponent('طلب تفعيل اشتراك — ' + PLAN_LABELS[chosenPkg.plan]);
   const body = encodeURIComponent(
-    `الاسم الكامل: ${profile.full_name || ''}\nالبريد الإلكتروني: ${session.user.email}\nالباقة المطلوبة: ${PLAN_LABELS[chosenPkg.plan]} ($${chosenPkg.monthly_price}/شهر)\nطريقة الدفع: ${chosenWallet}\nالمبلغ المحوّل: $${chosenPkg.monthly_price}\n\n(الرجاء إرفاق صورة الإيصال يدويًا قبل الإرسال إن لم يتم إرفاقها مسبقًا)`
+    `الاسم الكامل: ${profile.full_name || ''}\nالبريد الإلكتروني: ${session.user.email}\nالباقة المطلوبة: ${PLAN_LABELS[chosenPkg.plan]} ($${chosenPkg.monthly_price}/شهر)\nطريقة الدفع: ${chosenWallet.name}\nالمبلغ المحوّل: $${chosenPkg.monthly_price}\n\n(الرجاء إرفاق صورة الإيصال يدويًا قبل الإرسال إن لم يتم إرفاقها مسبقًا)`
   );
   window.location.href = `mailto:billing@findtenders.net?subject=${subject}&body=${body}`;
 }
