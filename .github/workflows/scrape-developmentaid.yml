@@ -1,0 +1,24 @@
+name: Scrape DevelopmentAid
+
+on:
+  schedule:
+    - cron: '0 5 * * 2'    # weekly, Tuesday 05:00 UTC
+  workflow_dispatch: {}     # adds a manual "Run workflow" button, for testing
+
+jobs:
+  scrape:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+      - name: Install dependencies
+        working-directory: scrapers
+        run: npm install
+      - name: Run DevelopmentAid scraper
+        working-directory: scrapers
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+        run: node sources/developmentaid.mjs
